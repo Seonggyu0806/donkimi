@@ -1,0 +1,34 @@
+# ============================================================
+#  로컬 개발 설정 템플릿
+#  사용법: 이 파일을 같은 폴더에 application-local.yml 로 복사한 뒤 값을 채우세요.
+#  (application-local.yml 은 .gitignore 처리되어 깃에 올라가지 않습니다 — 비밀값 보호)
+# ============================================================
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/donkimi?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: YOUR_MYSQL_ROOT_PASSWORD   # ← 본인 MySQL root 비밀번호
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# JWT (시크릿은 반드시 32자 이상)
+jwt:
+  secret: change-this-to-a-long-random-secret-at-least-32-chars
+  expiration: 86400000   # 24시간(ms)
+
+# 외부 API 키 (없으면 PLACEHOLDER 로 둬도 서버는 뜸. 해당 분석 기능만 비활성)
+google:
+  safebrowsing:
+    api:
+      key: PLACEHOLDER
+  vision:
+    api:
+      key: PLACEHOLDER
+openai:
+  api:
+    key: PLACEHOLDER
+naver:
+  stt:
+    client:
+      id: PLACEHOLDER
+      secret: PLACEHOLDER
