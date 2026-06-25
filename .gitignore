@@ -1,0 +1,21 @@
+# ===== 루트 공통 무시 =====
+# 서버 실행 로그
+bootrun.log
+**/bootrun.log
+
+# 업로드된 파일 (런타임 생성)
+**/uploads/
+
+# OS 부산물
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# 에디터
+.idea/
+.vscode/
+*.iml
+
+# 환경변수 비밀값 (있다면)
+.env.local
+**/.env.local

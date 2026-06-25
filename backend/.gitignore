@@ -1,0 +1,44 @@
+HELP.md
+.gradle
+# 주의: gradle/ 폴더 전체를 무시하면 안 됨 (래퍼 누락 → 빌드 불가).
+# wrapper의 jar/properties는 반드시 커밋되어야 함.
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+!**/src/main/**/gradle/
+!**/src/test/**/gradle/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Custom ###
+application-local.yml
+application-prod.yml
+build/
