@@ -4,6 +4,8 @@
 
 원래 4인 팀(team5) 프로젝트로 시작했고, 현재 **혼자서 서버 배포 · DB 운영 · 모바일 앱 전환**까지 발전시키는 솔로 개발 버전입니다.
 
+🌐 **라이브 API (Railway 배포):** https://donkimi.up.railway.app/swagger-ui/index.html
+
 ---
 
 ## ✨ 주요 기능
@@ -96,7 +98,7 @@ npm run dev   # http://localhost:5173
 - [x] **M0** 개발 환경 + 독립 레포 구성
 - [x] **M1** 백엔드 로컬 구동 + MySQL 연동 (API 25개 동작)
 - [x] **M2** 프론트엔드 ↔ 백엔드 로컬 통합 (회원가입/로그인 실동작)
-- [ ] **M3** Railway 클라우드 배포 (서버 + DB 라이브)
+- [x] **M3** Railway 클라우드 배포 (서버 + DB 라이브) → https://donkimi.up.railway.app
 - [ ] **M4** 외부 분석 API 연동 (URL / STT / OCR / 전화번호)
 - [ ] **M5** React Native 모바일 앱 전환
 - [ ] **M6** 앱 고유 기능(푸시 알림 등) + 마무리
