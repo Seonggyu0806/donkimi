@@ -1,0 +1,7 @@
+# 빌드 컨텍스트에서 제외 (이미지 빌드 속도/크기 최적화)
+.gradle/
+build/
+*.log
+.idea/
+*.iml
+src/main/resources/application-local.yml

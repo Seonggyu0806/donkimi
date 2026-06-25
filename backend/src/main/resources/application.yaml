@@ -1,6 +1,8 @@
 spring:
   profiles:
-    active: local
+    # 로컬은 기본 local 프로파일(application-local.yml) 사용.
+    # 배포 시 SPRING_PROFILES_ACTIVE=prod 환경변수로 덮어씀.
+    active: ${SPRING_PROFILES_ACTIVE:local}
 
   servlet:
     multipart:
@@ -16,7 +18,8 @@ spring:
         format_sql: false
 
 server:
-  port: 8080
+  # 로컬은 8080, 배포(Railway 등)에선 PORT 환경변수 사용
+  port: ${PORT:8080}
   tomcat:
     timezone: Asia/Seoul
 
@@ -25,3 +28,31 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /api-docs
+
+# ============================================================
+#  공통 기본값 (환경변수로 주입 가능)
+#  - 로컬: application-local.yml 이 아래 값을 덮어씀
+#  - 배포: Railway 환경변수(JWT_SECRET 등)가 주입됨. 없으면 아래 기본값 사용
+#    → DB 접속(datasource)은 배포 시 SPRING_DATASOURCE_URL/USERNAME/PASSWORD 환경변수로 주입
+# ============================================================
+jwt:
+  secret: ${JWT_SECRET:donkimi-default-dev-secret-please-override-in-prod-0123456789}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+google:
+  safebrowsing:
+    api:
+      key: ${GOOGLE_SAFEBROWSING_API_KEY:PLACEHOLDER}
+  vision:
+    api:
+      key: ${GOOGLE_VISION_API_KEY:PLACEHOLDER}
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY:PLACEHOLDER}
+
+naver:
+  stt:
+    client:
+      id: ${NAVER_STT_CLIENT_ID:PLACEHOLDER}
+      secret: ${NAVER_STT_CLIENT_SECRET:PLACEHOLDER}
