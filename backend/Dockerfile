@@ -13,6 +13,9 @@ RUN chmod +x gradlew && ./gradlew bootJar --no-daemon -x test
 
 # --- 2단계: 실행 ---
 FROM eclipse-temurin:17-jre
+# FFmpeg 설치 (음성(STT) 분석 시 오디오를 50초 단위로 분할하는 데 필요)
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 # Railway가 주입하는 PORT 환경변수를 Spring이 사용 (application.yaml: ${PORT:8080})
