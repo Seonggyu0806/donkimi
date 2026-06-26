@@ -60,8 +60,9 @@ public class UrlAnalysisService {
             phishingType = parsePhishingType(aiResult);
             recommendation = parseRecommendation(aiResult);
 
-            // Safe Browsing이 악성 판단했는데 AI가 SAFE/LOW로 판단한 경우 → 최소 HIGH로 보정
-            if (isMalicious && (riskLevel.equals("SAFE") || riskLevel.equals("LOW"))) {
+            // Safe Browsing이 악성으로 탐지하면 Google 판정을 신뢰해 최소 HIGH로 보정
+            // (AI 결과가 MEDIUM이거나 AI 호출이 실패해도 Google의 악성 판정은 우선시)
+            if (isMalicious && !riskLevel.equals("CRITICAL")) {
                 riskLevel = "HIGH";
                 recommendation = "구글 Safe Browsing에서 악성으로 탐지된 URL입니다. 주의하세요.";
             }
