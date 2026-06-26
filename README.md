@@ -4,7 +4,10 @@
 
 원래 4인 팀(team5) 프로젝트로 시작했고, 현재 **혼자서 서버 배포 · DB 운영 · 모바일 앱 전환**까지 발전시키는 솔로 개발 버전입니다.
 
-🌐 **라이브 API (Railway 배포):** https://donkimi.up.railway.app/swagger-ui/index.html
+🌐 **라이브 웹앱:** https://donkimi.vercel.app
+🔌 **라이브 API (Swagger):** https://donkimi.up.railway.app/swagger-ui/index.html
+
+> 프론트(Vercel) → `/api` 프록시 → 백엔드(Railway) → MySQL 까지 전체 배포 완료.
 
 ---
 
