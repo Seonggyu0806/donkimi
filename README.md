@@ -102,7 +102,7 @@ npm run dev   # http://localhost:5173
 - [x] **M1** 백엔드 로컬 구동 + MySQL 연동 (API 25개 동작)
 - [x] **M2** 프론트엔드 ↔ 백엔드 로컬 통합 (회원가입/로그인 실동작)
 - [x] **M3** Railway 클라우드 배포 (서버 + DB 라이브) → https://donkimi.up.railway.app
-- [ ] **M4** 외부 분석 API 연동 (URL / STT / OCR / 전화번호)
+- [x] **M4** 외부 분석 API 연동 — URL(Safe Browsing) · 이미지(Vision OCR) · 음성(Naver STT) · AI(OpenAI)
 - [ ] **M5** React Native 모바일 앱 전환
 - [ ] **M6** 앱 고유 기능(푸시 알림 등) + 마무리
 
