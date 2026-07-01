@@ -1,6 +1,13 @@
 import { Stack } from 'expo-router';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider } from '@/contexts/auth';
 
 export default function RootLayout() {
-  // 우선 단순한 스택 네비게이션으로 시작 (헤더 숨김)
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <SafeAreaProvider>
+      <AuthProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </AuthProvider>
+    </SafeAreaProvider>
+  );
 }
