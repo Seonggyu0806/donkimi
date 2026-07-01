@@ -1,14 +1,8 @@
 import { analyzeVoice, type VoiceAnalysisResult } from '@/api/analysis';
 import axios from 'axios';
-import {
-  AudioModule,
-  RecordingPresets,
-  setAudioModeAsync,
-  useAudioRecorder,
-  useAudioRecorderState,
-} from 'expo-audio';
+import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -28,55 +22,40 @@ const RISK: Record<string, { color: string; label: string }> = {
   CRITICAL: { color: '#EF4444', label: '위험' },
 };
 
-function fmt(ms: number) {
-  const s = Math.floor(ms / 1000);
-  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
-}
-
 export default function VoiceScreen() {
-  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const state = useAudioRecorderState(recorder);
-  const [uri, setUri] = useState<string | null>(null);
+  const [files, setFiles] = useState<{ uri: string; name: string }[]>([]);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<VoiceAnalysisResult | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      const status = await AudioModule.requestRecordingPermissionsAsync();
-      if (!status.granted) {
-        Alert.alert('권한 필요', '마이크 접근 권한을 허용해주세요.');
-        return;
-      }
-      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: true });
-    })();
-  }, []);
-
-  const startRec = async () => {
-    setUri(null);
-    setResult(null);
-    await recorder.prepareToRecordAsync();
-    recorder.record();
-  };
-
-  const stopRec = async () => {
-    await recorder.stop();
-    setUri(recorder.uri);
+  const pickFiles = async () => {
+    const res = await DocumentPicker.getDocumentAsync({
+      type: 'audio/*',
+      multiple: true,
+      copyToCacheDirectory: true,
+    });
+    if (!res.canceled && res.assets?.length) {
+      setFiles(res.assets.map((a) => ({ uri: a.uri, name: a.name })));
+      setResult(null);
+    }
   };
 
   const onAnalyze = async () => {
-    if (!uri) {
-      Alert.alert('녹음 필요', '먼저 통화/음성을 녹음하세요.');
+    if (!files.length) {
+      Alert.alert('파일 필요', '먼저 통화 녹음 파일을 선택하세요.');
       return;
     }
     setBusy(true);
     setResult(null);
     try {
-      const r = await analyzeVoice(uri);
+      const r = await analyzeVoice(files);
       setResult(r);
     } catch (e) {
-      const msg = axios.isAxiosError(e)
-        ? (e.response?.data?.message ?? '분석에 실패했습니다.')
-        : '분석에 실패했습니다.';
+      let msg = '분석에 실패했습니다.';
+      if (axios.isAxiosError(e)) {
+        const status = e.response?.status ?? '네트워크';
+        const body = e.response?.data?.message ?? e.message;
+        msg = `[${status}] ${body}`;
+      }
       Alert.alert('분석 실패', msg);
     } finally {
       setBusy(false);
@@ -93,23 +72,23 @@ export default function VoiceScreen() {
         </TouchableOpacity>
 
         <Text style={styles.title}>🎙️ 음성 진단</Text>
-        <Text style={styles.subtitle}>의심스러운 통화를 녹음해 보이스피싱을 판별하세요</Text>
+        <Text style={styles.subtitle}>통화 녹음 파일을 선택해 보이스피싱을 판별하세요 (여러 개 가능)</Text>
 
-        <View style={styles.recBox}>
-          <Text style={styles.timer}>{fmt(state.durationMillis ?? 0)}</Text>
-          {state.isRecording ? (
-            <TouchableOpacity style={[styles.recBtn, styles.recStop]} onPress={stopRec}>
-              <Text style={styles.recBtnText}>■ 녹음 중지</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={[styles.recBtn, styles.recStart]} onPress={startRec}>
-              <Text style={styles.recBtnText}>● 녹음 시작</Text>
-            </TouchableOpacity>
-          )}
-          {uri && !state.isRecording && <Text style={styles.recDone}>✓ 녹음 완료</Text>}
-        </View>
+        <TouchableOpacity style={styles.pickBox} onPress={pickFiles}>
+          <Text style={styles.pickText}>+ 녹음 파일 선택 {files.length > 0 ? `(${files.length}개)` : ''}</Text>
+        </TouchableOpacity>
 
-        <TouchableOpacity style={styles.btn} onPress={onAnalyze} disabled={busy || !uri}>
+        {files.length > 0 && (
+          <View style={styles.fileList}>
+            {files.map((f, i) => (
+              <Text key={i} style={styles.fileName} numberOfLines={1}>
+                🎵 {f.name}
+              </Text>
+            ))}
+          </View>
+        )}
+
+        <TouchableOpacity style={styles.btn} onPress={onAnalyze} disabled={busy || !files.length}>
           {busy ? <ActivityIndicator color="#0F172A" /> : <Text style={styles.btnText}>분석하기</Text>}
         </TouchableOpacity>
 
@@ -138,19 +117,19 @@ const styles = StyleSheet.create({
   back: { color: '#94A3B8', fontSize: 15, marginBottom: 4 },
   title: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF' },
   subtitle: { fontSize: 14, color: '#94A3B8', marginBottom: 8 },
-  recBox: {
+  pickBox: {
     backgroundColor: '#1E293B',
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: 12,
+    paddingVertical: 28,
     alignItems: 'center',
-    gap: 16,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#334155',
+    borderStyle: 'dashed',
   },
-  timer: { color: '#FFFFFF', fontSize: 36, fontWeight: 'bold', fontVariant: ['tabular-nums'] },
-  recBtn: { borderRadius: 999, paddingHorizontal: 28, paddingVertical: 14 },
-  recStart: { backgroundColor: '#EF4444' },
-  recStop: { backgroundColor: '#64748B' },
-  recBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
-  recDone: { color: '#22C55E', fontSize: 14 },
+  pickText: { color: '#94A3B8', fontSize: 16 },
+  fileList: { gap: 6, backgroundColor: '#1E293B', borderRadius: 12, padding: 14 },
+  fileName: { color: '#CBD5E1', fontSize: 14 },
   btn: { backgroundColor: '#FACC15', borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
   btnText: { color: '#0F172A', fontSize: 16, fontWeight: 'bold' },
   resultCard: { backgroundColor: '#1E293B', borderRadius: 16, padding: 20, gap: 10, marginTop: 8 },

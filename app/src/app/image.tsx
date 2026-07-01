@@ -24,11 +24,11 @@ const RISK: Record<string, { color: string; label: string }> = {
 };
 
 export default function ImageScreen() {
-  const [uri, setUri] = useState<string | null>(null);
+  const [uris, setUris] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ImageAnalysisResult | null>(null);
 
-  const pickImage = async () => {
+  const pickImages = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
       Alert.alert('권한 필요', '사진 접근 권한을 허용해주세요.');
@@ -36,23 +36,25 @@ export default function ImageScreen() {
     }
     const res = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      selectionLimit: 5,
       quality: 0.7,
     });
-    if (!res.canceled && res.assets[0]) {
-      setUri(res.assets[0].uri);
+    if (!res.canceled && res.assets.length) {
+      setUris(res.assets.map((a) => a.uri));
       setResult(null);
     }
   };
 
   const onAnalyze = async () => {
-    if (!uri) {
+    if (!uris.length) {
       Alert.alert('이미지 필요', '먼저 분석할 이미지를 선택하세요.');
       return;
     }
     setBusy(true);
     setResult(null);
     try {
-      const r = await analyzeImage(uri);
+      const r = await analyzeImage(uris);
       setResult(r);
     } catch (e) {
       const msg = axios.isAxiosError(e)
@@ -74,15 +76,19 @@ export default function ImageScreen() {
         </TouchableOpacity>
 
         <Text style={styles.title}>🖼️ 이미지 진단</Text>
-        <Text style={styles.subtitle}>의심스러운 문자/캡처 이미지를 분석하세요</Text>
+        <Text style={styles.subtitle}>의심스러운 문자/캡처 이미지를 선택하세요 (여러 장 가능)</Text>
 
-        <TouchableOpacity style={styles.pickBox} onPress={pickImage}>
-          {uri ? (
-            <Image source={{ uri }} style={styles.preview} resizeMode="contain" />
-          ) : (
-            <Text style={styles.pickText}>+ 이미지 선택</Text>
-          )}
+        <TouchableOpacity style={styles.pickBox} onPress={pickImages}>
+          <Text style={styles.pickText}>+ 이미지 선택 {uris.length > 0 ? `(${uris.length}장)` : ''}</Text>
         </TouchableOpacity>
+
+        {uris.length > 0 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.thumbRow}>
+            {uris.map((u, i) => (
+              <Image key={i} source={{ uri: u }} style={styles.thumb} resizeMode="cover" />
+            ))}
+          </ScrollView>
+        )}
 
         <TouchableOpacity style={styles.btn} onPress={onAnalyze} disabled={busy}>
           {busy ? <ActivityIndicator color="#0F172A" /> : <Text style={styles.btnText}>분석하기</Text>}
@@ -116,16 +122,16 @@ const styles = StyleSheet.create({
   pickBox: {
     backgroundColor: '#1E293B',
     borderRadius: 12,
-    height: 220,
+    paddingVertical: 28,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#334155',
     borderStyle: 'dashed',
-    overflow: 'hidden',
   },
-  pickText: { color: '#64748B', fontSize: 16 },
-  preview: { width: '100%', height: '100%' },
+  pickText: { color: '#94A3B8', fontSize: 16 },
+  thumbRow: { flexGrow: 0 },
+  thumb: { width: 90, height: 90, borderRadius: 10, marginRight: 8, backgroundColor: '#1E293B' },
   btn: { backgroundColor: '#FACC15', borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
   btnText: { color: '#0F172A', fontSize: 16, fontWeight: 'bold' },
   resultCard: { backgroundColor: '#1E293B', borderRadius: 16, padding: 20, gap: 10, marginTop: 8 },

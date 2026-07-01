@@ -21,18 +21,19 @@ export interface ImageAnalysisResult {
   message: string; // AI 분석 상세
 }
 
-// 이미지(스미싱 문자 캡처) 진단 — 사진 URI를 multipart 업로드
-export async function analyzeImage(uri: string): Promise<ImageAnalysisResult> {
-  const name = uri.split('/').pop() || 'image.jpg';
-  const ext = name.split('.').pop()?.toLowerCase();
-  const type = ext === 'png' ? 'image/png' : 'image/jpeg';
-
+// 이미지(스미싱 캡처) 진단 — 여러 장 multipart 업로드 (백엔드가 List로 받음)
+export async function analyzeImage(uris: string[]): Promise<ImageAnalysisResult> {
   const form = new FormData();
-  // 백엔드 파라미터명은 'file'
-  form.append('file', { uri, name, type } as any);
+  uris.forEach((uri, i) => {
+    const name = uri.split('/').pop() || `image_${i}.jpg`;
+    const ext = name.split('.').pop()?.toLowerCase();
+    const type = ext === 'png' ? 'image/png' : 'image/jpeg';
+    form.append('file', { uri, name, type } as any); // 파라미터명 'file' 반복 = List
+  });
 
   const res = await apiClient.post('/analysis/image', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 120000,
   });
   return res.data.data as ImageAnalysisResult;
 }
@@ -45,13 +46,16 @@ export interface VoiceAnalysisResult {
 }
 
 // 음성(통화 녹음) 진단 — 오디오 파일을 multipart 업로드 (STT + AI)
-export async function analyzeVoice(uri: string): Promise<VoiceAnalysisResult> {
-  const name = uri.split('/').pop() || 'audio.m4a';
-  const ext = name.split('.').pop()?.toLowerCase();
-  const type = ext === 'wav' ? 'audio/wav' : ext === 'mp3' ? 'audio/mpeg' : 'audio/m4a';
-
+// 음성(통화 녹음 파일) 진단 — 여러 오디오 파일 multipart 업로드
+export async function analyzeVoice(files: { uri: string; name: string }[]): Promise<VoiceAnalysisResult> {
   const form = new FormData();
-  form.append('file', { uri, name, type } as any);
+  files.forEach((f, i) => {
+    const name = f.name || `audio_${i}.m4a`;
+    const ext = name.split('.').pop()?.toLowerCase();
+    const type =
+      ext === 'wav' ? 'audio/wav' : ext === 'mp3' ? 'audio/mpeg' : ext === 'm4a' ? 'audio/m4a' : 'audio/*';
+    form.append('file', { uri: f.uri, name, type } as any);
+  });
 
   const res = await apiClient.post('/analysis/voice', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
