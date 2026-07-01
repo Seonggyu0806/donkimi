@@ -30,6 +30,7 @@ export default function HomeTab() {
           <ActionCard icon="link-outline" label="URL 진단" desc="의심 링크 검사" onPress={() => router.push('/url')} />
           <ActionCard icon="image-outline" label="이미지 진단" desc="스미싱 캡처 분석" onPress={() => router.push('/image')} />
           <ActionCard icon="mic-outline" label="음성 진단" desc="보이스피싱 판별" onPress={() => router.push('/voice')} />
+          <ActionCard icon="call-outline" label="전화번호 조회" desc="신고 이력 확인" onPress={() => router.push('/phone')} />
           <ActionCard icon="chatbubbles-outline" label="AI 챗봇" desc="궁금한 점 상담" onPress={() => router.push('/chat')} />
         </View>
       </ScrollView>

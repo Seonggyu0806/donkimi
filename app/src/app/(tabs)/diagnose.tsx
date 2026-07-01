@@ -31,6 +31,7 @@ export default function DiagnoseTab() {
           <DiagnoseRow icon="link-outline" label="URL 진단" desc="의심스러운 링크의 위험도 분석" onPress={() => router.push('/url')} />
           <DiagnoseRow icon="image-outline" label="이미지 진단" desc="스미싱 문자 캡처에서 글자 추출·분석" onPress={() => router.push('/image')} />
           <DiagnoseRow icon="mic-outline" label="음성 진단" desc="통화 녹음으로 보이스피싱 판별" onPress={() => router.push('/voice')} />
+          <DiagnoseRow icon="call-outline" label="전화번호 조회" desc="번호의 신고 이력·위험도 확인 및 신고" onPress={() => router.push('/phone')} />
         </View>
       </ScrollView>
     </SafeAreaView>
