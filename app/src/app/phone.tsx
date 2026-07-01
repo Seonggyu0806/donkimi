@@ -116,6 +116,22 @@ export default function PhoneScreen() {
                 <Text style={styles.reportText}>🚨 이 번호 신고하기</Text>
               )}
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.chatBtn}
+              onPress={() =>
+                router.push({
+                  pathname: '/chat',
+                  params: {
+                    type: 'phone',
+                    riskLevel: result.riskLevel,
+                    summary: `[전화번호 진단] ${result.number}\n위험도 ${risk.label}, 누적 신고 ${result.reportCount}회\n${result.message}`,
+                  },
+                })
+              }
+            >
+              <Text style={styles.chatBtnText}>💬 이 결과 챗봇에게 물어보기</Text>
+            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
@@ -155,4 +171,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   reportText: { color: '#EF4444', fontSize: 15, fontWeight: '600' },
+  chatBtn: {
+    borderWidth: 1,
+    borderColor: '#FACC15',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  chatBtnText: { color: '#FACC15', fontSize: 15, fontWeight: '600' },
 });

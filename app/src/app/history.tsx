@@ -105,7 +105,11 @@ export default function HistoryScreen() {
             <Text style={styles.empty}>아직 대화 이력이 없어요.</Text>
           ) : (
             chats.map((c) => (
-              <View key={c.sessionId} style={styles.item}>
+              <TouchableOpacity
+                key={c.sessionId}
+                style={styles.item}
+                onPress={() => router.push({ pathname: '/chat', params: { sessionId: c.sessionId } })}
+              >
                 <View style={styles.itemTop}>
                   <Text style={styles.itemType}>💬 상담</Text>
                   <RiskBadge level={c.riskLevel} />
@@ -113,8 +117,8 @@ export default function HistoryScreen() {
                 <Text style={styles.itemTarget} numberOfLines={2}>
                   {c.preview}
                 </Text>
-                <Text style={styles.itemMeta}>{c.createdAt}</Text>
-              </View>
+                <Text style={styles.itemMeta}>{c.createdAt} · 탭하면 대화 이어보기 ›</Text>
+              </TouchableOpacity>
             ))
           )}
         </ScrollView>

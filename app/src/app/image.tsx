@@ -106,6 +106,21 @@ export default function ImageScreen() {
             <View style={styles.divider} />
             <Text style={styles.detailLabel}>AI 분석</Text>
             <Text style={styles.detail}>{result.message}</Text>
+            <TouchableOpacity
+              style={styles.chatBtn}
+              onPress={() =>
+                router.push({
+                  pathname: '/chat',
+                  params: {
+                    type: 'image',
+                    riskLevel: result.riskLevel,
+                    summary: `[이미지 진단 결과] 위험도 ${risk.label}\n유형: ${result.phishingType}\n${result.message}`,
+                  },
+                })
+              }
+            >
+              <Text style={styles.chatBtnText}>💬 이 결과 챗봇에게 물어보기</Text>
+            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
@@ -141,4 +156,13 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: '#334155', marginVertical: 4 },
   detailLabel: { color: '#94A3B8', fontSize: 13, fontWeight: '600' },
   detail: { color: '#CBD5E1', fontSize: 14, lineHeight: 21 },
+  chatBtn: {
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#FACC15',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  chatBtnText: { color: '#FACC15', fontSize: 15, fontWeight: '600' },
 });
