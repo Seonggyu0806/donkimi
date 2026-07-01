@@ -31,7 +31,9 @@ export default function HomeScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>환영합니다, {user.nickname}님! 👋</Text>
           <Text style={styles.cardText}>{user.email}</Text>
-          <Text style={styles.cardText}>곧 URL·이미지·음성 진단 화면이 들어옵니다.</Text>
+          <TouchableOpacity style={styles.btn} onPress={() => router.push('/diagnosis')}>
+            <Text style={styles.btnText}>🔗 URL 진단하기</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={[styles.btn, styles.btnOutline]} onPress={logout}>
             <Text style={styles.btnOutlineText}>로그아웃</Text>
           </TouchableOpacity>
