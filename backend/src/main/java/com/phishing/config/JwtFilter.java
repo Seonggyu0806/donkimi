@@ -23,10 +23,10 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
 
+        // 주의: /analysis/url·image·voice 는 여기서 제외하면 안 됨.
+        // 이 필터를 건너뛰면 로그인 토큰을 못 읽어 userId=null → 분석 이력이 사용자에 저장되지 않음.
+        // (이 경로들은 permitAll 이라 토큰이 없어도 익명으로 동작하고, 토큰이 있으면 userId를 잡아 이력 저장)
         return request.getMethod().equals("OPTIONS") ||
-                path.equals("/api/v1/analysis/url") ||
-                path.equals("/api/v1/analysis/image") ||
-                path.equals("/api/v1/analysis/voice") ||
                 path.equals("/api/v1/analysis/history/test") ||
                 path.startsWith("/api/v1/phishing") ||
                 path.equals("/api/v1/users/login") ||
