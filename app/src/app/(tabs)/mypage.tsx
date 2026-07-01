@@ -1,5 +1,6 @@
 import { useAuth } from '@/contexts/auth';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -26,6 +27,12 @@ export default function MypageTab() {
           <Text style={styles.email}>{user?.email}</Text>
         </View>
 
+        <TouchableOpacity style={styles.menuBtn} onPress={() => router.push('/history')}>
+          <Ionicons name="time-outline" size={20} color="#FACC15" />
+          <Text style={styles.menuText}>분석 · 대화 이력</Text>
+          <Ionicons name="chevron-forward" size={18} color="#64748B" />
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
           <Ionicons name="log-out-outline" size={20} color="#EF4444" />
           <Text style={styles.logoutText}>로그아웃</Text>
@@ -51,6 +58,16 @@ const styles = StyleSheet.create({
   },
   nickname: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' },
   email: { color: '#94A3B8', fontSize: 14 },
+  menuBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+  },
+  menuText: { flex: 1, color: '#E2E8F0', fontSize: 16, fontWeight: '600' },
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',

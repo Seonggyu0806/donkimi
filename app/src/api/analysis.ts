@@ -38,6 +38,22 @@ export async function analyzeImage(uris: string[]): Promise<ImageAnalysisResult>
   return res.data.data as ImageAnalysisResult;
 }
 
+// 분석 이력 항목 (GET /analysis/history)
+export interface AnalysisHistoryItem {
+  id: number;
+  type?: string; // URL | IMAGE | VOICE
+  target?: string;
+  riskScore?: number;
+  riskLevel: string;
+  phishingType?: string;
+  analyzedAt: string;
+}
+
+export async function getAnalysisHistory(): Promise<AnalysisHistoryItem[]> {
+  const res = await apiClient.get('/analysis/history');
+  return (res.data.data ?? []) as AnalysisHistoryItem[];
+}
+
 export interface VoiceAnalysisResult {
   convertedText: string; // STT로 변환된 텍스트
   riskLevel: string;
