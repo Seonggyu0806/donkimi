@@ -1,6 +1,5 @@
 import { sendChat } from '@/api/chat';
 import axios from 'axios';
-import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -24,10 +23,10 @@ function newSessionId() {
   return `sess-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export default function ChatScreen() {
+export default function ChatTab() {
   const [sessionId] = useState(newSessionId);
   const [messages, setMessages] = useState<Msg[]>([
-    { role: 'assistant', content: '안녕하세요! 피싱·사기 의심 내용을 물어보세요. 제가 위험 여부와 대처법을 알려드릴게요. 🛡️' },
+    { role: 'assistant', content: '안녕하세요! 피싱·사기 의심 내용을 물어보세요. 위험 여부와 대처법을 알려드릴게요. 🛡️' },
   ]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -55,17 +54,10 @@ export default function ChatScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.back}>← 뒤로</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>💬 AI 챗봇</Text>
-          <View style={{ width: 44 }} />
+          <Text style={styles.headerTitle}>💬 AI 챗봇 상담</Text>
         </View>
 
         <ScrollView
@@ -75,10 +67,7 @@ export default function ChatScreen() {
           onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
         >
           {messages.map((m, i) => (
-            <View
-              key={i}
-              style={[styles.bubble, m.role === 'user' ? styles.bubbleUser : styles.bubbleAI]}
-            >
+            <View key={i} style={[styles.bubble, m.role === 'user' ? styles.bubbleUser : styles.bubbleAI]}>
               <Text style={m.role === 'user' ? styles.textUser : styles.textAI}>{m.content}</Text>
             </View>
           ))}
@@ -109,17 +98,8 @@ export default function ChatScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0F172A' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1E293B',
-  },
-  back: { color: '#94A3B8', fontSize: 15 },
-  headerTitle: { color: '#FFFFFF', fontSize: 17, fontWeight: 'bold' },
+  header: { paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#1E293B' },
+  headerTitle: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' },
   list: { flex: 1 },
   listContent: { padding: 16, gap: 10 },
   bubble: { maxWidth: '85%', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10 },

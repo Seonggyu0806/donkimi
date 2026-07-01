@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// 위험도 → 색상/한글 라벨
 const RISK: Record<string, { color: string; label: string }> = {
   SAFE: { color: '#22C55E', label: '안전' },
   LOW: { color: '#84CC16', label: '낮음' },
@@ -23,7 +22,7 @@ const RISK: Record<string, { color: string; label: string }> = {
   CRITICAL: { color: '#EF4444', label: '위험' },
 };
 
-export default function DiagnosisScreen() {
+export default function UrlScreen() {
   const [url, setUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<UrlAnalysisResult | null>(null);
