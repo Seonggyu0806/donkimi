@@ -37,6 +37,9 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.btn} onPress={() => router.push('/image')}>
             <Text style={styles.btnText}>🖼️ 이미지 진단하기</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={() => router.push('/voice')}>
+            <Text style={styles.btnText}>🎙️ 음성 진단하기</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.btn} onPress={() => router.push('/chat')}>
             <Text style={styles.btnText}>💬 AI 챗봇 상담</Text>
           </TouchableOpacity>

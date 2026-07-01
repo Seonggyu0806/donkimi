@@ -36,3 +36,26 @@ export async function analyzeImage(uri: string): Promise<ImageAnalysisResult> {
   });
   return res.data.data as ImageAnalysisResult;
 }
+
+export interface VoiceAnalysisResult {
+  convertedText: string; // STT로 변환된 텍스트
+  riskLevel: string;
+  phishingType: string;
+  message: string; // AI 분석 상세
+}
+
+// 음성(통화 녹음) 진단 — 오디오 파일을 multipart 업로드 (STT + AI)
+export async function analyzeVoice(uri: string): Promise<VoiceAnalysisResult> {
+  const name = uri.split('/').pop() || 'audio.m4a';
+  const ext = name.split('.').pop()?.toLowerCase();
+  const type = ext === 'wav' ? 'audio/wav' : ext === 'mp3' ? 'audio/mpeg' : 'audio/m4a';
+
+  const form = new FormData();
+  form.append('file', { uri, name, type } as any);
+
+  const res = await apiClient.post('/analysis/voice', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 120000, // STT 변환은 시간이 걸릴 수 있음
+  });
+  return res.data.data as VoiceAnalysisResult;
+}
