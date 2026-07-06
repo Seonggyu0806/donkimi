@@ -53,8 +53,13 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 틀렸습니다"));
         // 없으면 예외 발생
 
-        // 비밀번호 확인 (소셜 로그인 계정은 비밀번호가 없어 일반 로그인 불가)
-        if (user.getPassword() == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        // 소셜 계정은 임의의(추측불가) 비밀번호가 저장돼 있어 일반 로그인이 불가능함 — 안내 메시지로 구분
+        if (!"LOCAL".equals(user.getProvider())) {
+            throw new IllegalArgumentException(user.getProvider() + " 계정으로 가입된 이메일입니다. " + user.getProvider() + " 로그인을 이용해주세요");
+        }
+
+        // 비밀번호 확인
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 틀렸습니다");
             // 비밀번호 틀리면 예외 발생
         }
@@ -71,7 +76,14 @@ public class UserService {
 
         User user = userRepository.findByEmail(info.email())
                 .orElseGet(() -> userRepository.save(
-                        new User(info.email(), info.name(), "GOOGLE", info.providerId())
+                        new User(
+                                info.email(),
+                                info.name(),
+                                "GOOGLE",
+                                info.providerId(),
+                                // 이메일/비밀번호로는 절대 로그인할 수 없는 추측불가 랜덤 비밀번호(암호화 저장)
+                                passwordEncoder.encode(java.util.UUID.randomUUID().toString())
+                        )
                 ));
 
         String accessToken = jwtUtil.generateToken(user.getId(), "USER");
@@ -100,8 +112,8 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다"));
 
-        // 비밀번호 확인 (소셜 로그인 계정은 비밀번호가 없으므로 확인 생략)
-        if (user.getPassword() != null && !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        // 비밀번호 확인 (소셜 계정은 랜덤 비밀번호가 있어 이 경로로는 탈퇴 불가 — 별도 처리 필요시 추후 보완)
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 틀렸습니다");
         }
 
