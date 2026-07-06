@@ -2,7 +2,8 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 import { setAuthToken, setUnauthorizedHandler } from '@/api/client';
-import { loginApi, registerApi } from '@/api/auth';
+import { googleLoginApi, loginApi, registerApi, type LoginResult } from '@/api/auth';
+import { signOutGoogle } from '@/native/googleAuth';
 import { useAlert } from '@/ui/AlertProvider';
 
 interface User {
@@ -14,6 +15,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogleToken: (idToken: string) => Promise<void>;
   register: (nickname: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -46,13 +48,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const result = await loginApi(email, password);
+  // 로그인 성공 응답을 세션에 저장 (이메일/구글 로그인 공통)
+  const persistSession = async (result: LoginResult) => {
     setAuthToken(result.accessToken);
     await SecureStore.setItemAsync(TOKEN_KEY, result.accessToken);
     const u = { email: result.email, nickname: result.nickname };
     await SecureStore.setItemAsync(USER_KEY, JSON.stringify(u));
     setUser(u);
+  };
+
+  const login = async (email: string, password: string) => {
+    const result = await loginApi(email, password);
+    await persistSession(result);
+  };
+
+  // 구글 Sign-In에서 받은 idToken으로 로그인 (신규면 백엔드가 자동 가입 처리)
+  const loginWithGoogleToken = async (idToken: string) => {
+    const result = await googleLoginApi(idToken);
+    await persistSession(result);
   };
 
   const register = async (nickname: string, email: string, password: string) => {
@@ -64,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     await SecureStore.deleteItemAsync(USER_KEY);
     setUser(null);
+    await signOutGoogle(); // 구글 네이티브 세션도 함께 정리 (안 하면 다음 로그인 때 계정 전환 불가)
   };
 
   // 토큰 만료(401) 시: 세션 정리 + 로그인 화면으로. 중복 알림 방지용 ref.
@@ -85,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithGoogleToken, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
