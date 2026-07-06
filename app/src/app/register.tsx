@@ -1,12 +1,12 @@
 import { useAuth } from '@/contexts/auth';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
+import { useAlert } from '@/ui/AlertProvider';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -19,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function RegisterScreen() {
   const { register } = useAuth();
   const { colors } = useTheme();
+  const showAlert = useAlert();
   const styles = createStyles(colors);
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
@@ -27,20 +28,23 @@ export default function RegisterScreen() {
 
   const onSubmit = async () => {
     if (!nickname || !email || !password) {
-      Alert.alert('입력 필요', '닉네임, 이메일, 비밀번호를 모두 입력하세요.');
+      showAlert('입력 필요', '닉네임, 이메일, 비밀번호를 모두 입력하세요.', undefined, { variant: 'warning' });
       return;
     }
     setBusy(true);
     try {
       await register(nickname.trim(), email.trim(), password);
-      Alert.alert('회원가입 완료', '이제 로그인해 주세요!', [
-        { text: '확인', onPress: () => router.replace('/login') },
-      ]);
+      showAlert(
+        '회원가입 완료',
+        '이제 로그인해 주세요!',
+        [{ text: '확인', onPress: () => router.replace('/login') }],
+        { variant: 'success' },
+      );
     } catch (e) {
       const msg = axios.isAxiosError(e)
         ? (e.response?.data?.message ?? '회원가입에 실패했습니다.')
         : '회원가입에 실패했습니다.';
-      Alert.alert('회원가입 실패', msg);
+      showAlert('회원가입 실패', msg, undefined, { variant: 'danger' });
     } finally {
       setBusy(false);
     }

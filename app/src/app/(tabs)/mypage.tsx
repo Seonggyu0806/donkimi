@@ -1,9 +1,10 @@
 import { useAuth } from '@/contexts/auth';
 import { useTheme, type ThemePreference } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
+import { useAlert } from '@/ui/AlertProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const THEME_OPTIONS: { value: ThemePreference; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
@@ -15,13 +16,19 @@ const THEME_OPTIONS: { value: ThemePreference; label: string; icon: keyof typeof
 export default function MypageTab() {
   const { user, logout } = useAuth();
   const { colors, preference, setPreference } = useTheme();
+  const showAlert = useAlert();
   const styles = createStyles(colors);
 
   const onLogout = () => {
-    Alert.alert('로그아웃', '정말 로그아웃 할까요?', [
-      { text: '취소', style: 'cancel' },
-      { text: '로그아웃', style: 'destructive', onPress: () => logout() },
-    ]);
+    showAlert(
+      '로그아웃',
+      '정말 로그아웃 할까요?',
+      [
+        { text: '취소', style: 'cancel' },
+        { text: '로그아웃', style: 'destructive', onPress: () => logout() },
+      ],
+      { variant: 'warning' },
+    );
   };
 
   return (

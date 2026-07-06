@@ -1,12 +1,12 @@
 import { useAuth } from '@/contexts/auth';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
+import { useAlert } from '@/ui/AlertProvider';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -19,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function LoginScreen() {
   const { login } = useAuth();
   const { colors } = useTheme();
+  const showAlert = useAlert();
   const styles = createStyles(colors);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +27,7 @@ export default function LoginScreen() {
 
   const onSubmit = async () => {
     if (!email || !password) {
-      Alert.alert('입력 필요', '이메일과 비밀번호를 모두 입력하세요.');
+      showAlert('입력 필요', '이메일과 비밀번호를 모두 입력하세요.', undefined, { variant: 'warning' });
       return;
     }
     setBusy(true);
@@ -37,7 +38,7 @@ export default function LoginScreen() {
       const msg = axios.isAxiosError(e)
         ? (e.response?.data?.message ?? '로그인에 실패했습니다.')
         : '로그인에 실패했습니다.';
-      Alert.alert('로그인 실패', msg);
+      showAlert('로그인 실패', msg, undefined, { variant: 'danger' });
     } finally {
       setBusy(false);
     }

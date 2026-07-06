@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/contexts/auth';
 import { ThemeProvider, useTheme } from '@/theme/ThemeContext';
+import { AlertProvider } from '@/ui/AlertProvider';
 
 function ThemedStack() {
   const { colors, scheme } = useTheme();
@@ -23,9 +24,11 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <AuthProvider>
-          <ThemedStack />
-        </AuthProvider>
+        <AlertProvider>
+          <AuthProvider>
+            <ThemedStack />
+          </AuthProvider>
+        </AlertProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

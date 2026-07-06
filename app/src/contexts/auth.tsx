@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { Alert } from 'react-native';
 import { router } from 'expo-router';
 import { setAuthToken, setUnauthorizedHandler } from '@/api/client';
 import { loginApi, registerApi } from '@/api/auth';
+import { useAlert } from '@/ui/AlertProvider';
 
 interface User {
   email: string;
@@ -24,6 +24,7 @@ const TOKEN_KEY = 'donkimi_token';
 const USER_KEY = 'donkimi_user';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const showAlert = useAlert();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -72,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (handledExpiry.current) return;
       handledExpiry.current = true;
       logout().finally(() => {
-        Alert.alert('세션 만료', '로그인이 만료되었습니다. 다시 로그인해주세요.');
+        showAlert('세션 만료', '로그인이 만료되었습니다. 다시 로그인해주세요.', undefined, { variant: 'warning' });
         router.replace('/login');
         setTimeout(() => {
           handledExpiry.current = false;

@@ -7,12 +7,12 @@ import {
 } from '@/native/callblock';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
+import { useAlert } from '@/ui/AlertProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Platform,
   StyleSheet,
@@ -24,6 +24,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function BlockListScreen() {
   const { colors } = useTheme();
+  const showAlert = useAlert();
   const styles = createStyles(colors);
   const [numbers, setNumbers] = useState<string[]>([]);
   const [roleHeld, setRoleHeld] = useState(false);
@@ -51,7 +52,9 @@ export default function BlockListScreen() {
       const granted = await requestRole();
       setRoleHeld(granted);
       if (!granted) {
-        Alert.alert('권한 필요', '통화 차단을 쓰려면 돈킴이를 "통화 스크리닝 앱"으로 지정해야 해요.');
+        showAlert('권한 필요', '통화 차단을 쓰려면 돈킴이를 "통화 스크리닝 앱"으로 지정해야 해요.', undefined, {
+          variant: 'warning',
+        });
       }
     } finally {
       setBusyRole(false);
@@ -59,7 +62,7 @@ export default function BlockListScreen() {
   };
 
   const onRemove = (number: string) => {
-    Alert.alert('차단 해제', `${number} 번호의 차단을 해제할까요?`, [
+    showAlert('차단 해제', `${number} 번호의 차단을 해제할까요?`, [
       { text: '취소', style: 'cancel' },
       {
         text: '해제',

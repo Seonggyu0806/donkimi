@@ -2,12 +2,12 @@ import { analyzeUrl, type UrlAnalysisResult } from '@/api/analysis';
 import { RISK, RISK_TEXT } from '@/lib/risk';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
+import { useAlert } from '@/ui/AlertProvider';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function UrlScreen() {
   const { colors } = useTheme();
+  const showAlert = useAlert();
   const styles = createStyles(colors);
   const [url, setUrl] = useState('');
   const [busy, setBusy] = useState(false);
@@ -26,7 +27,7 @@ export default function UrlScreen() {
 
   const onAnalyze = async () => {
     if (!url.trim()) {
-      Alert.alert('입력 필요', '분석할 URL을 입력하세요.');
+      showAlert('입력 필요', '분석할 URL을 입력하세요.', undefined, { variant: 'warning' });
       return;
     }
     setBusy(true);
@@ -38,7 +39,7 @@ export default function UrlScreen() {
       const msg = axios.isAxiosError(e)
         ? (e.response?.data?.message ?? '분석에 실패했습니다.')
         : '분석에 실패했습니다.';
-      Alert.alert('분석 실패', msg);
+      showAlert('분석 실패', msg, undefined, { variant: 'danger' });
     } finally {
       setBusy(false);
     }

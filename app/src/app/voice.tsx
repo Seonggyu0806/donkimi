@@ -2,13 +2,13 @@ import { analyzeVoice, type VoiceAnalysisResult } from '@/api/analysis';
 import { RISK, RISK_TEXT } from '@/lib/risk';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
+import { useAlert } from '@/ui/AlertProvider';
 import axios from 'axios';
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function VoiceScreen() {
   const { colors } = useTheme();
+  const showAlert = useAlert();
   const styles = createStyles(colors);
   const [files, setFiles] = useState<{ uri: string; name: string }[]>([]);
   const [busy, setBusy] = useState(false);
@@ -38,7 +39,7 @@ export default function VoiceScreen() {
 
   const onAnalyze = async () => {
     if (!files.length) {
-      Alert.alert('파일 필요', '먼저 통화 녹음 파일을 선택하세요.');
+      showAlert('파일 필요', '먼저 통화 녹음 파일을 선택하세요.', undefined, { variant: 'warning' });
       return;
     }
     setBusy(true);
@@ -53,7 +54,7 @@ export default function VoiceScreen() {
         const body = e.response?.data?.message ?? e.message;
         msg = `[${status}] ${body}`;
       }
-      Alert.alert('분석 실패', msg);
+      showAlert('분석 실패', msg, undefined, { variant: 'danger' });
     } finally {
       setBusy(false);
     }

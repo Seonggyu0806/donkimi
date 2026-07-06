@@ -3,12 +3,12 @@ import { RISK, RISK_TEXT } from '@/lib/risk';
 import { addBlockedNumber, callBlockAvailable, isRoleHeld, requestRole } from '@/native/callblock';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
+import { useAlert } from '@/ui/AlertProvider';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   ScrollView,
   StyleSheet,
@@ -23,6 +23,7 @@ const HIGH_RISK_LEVELS = new Set(['HIGH', 'CRITICAL']);
 
 export default function PhoneScreen() {
   const { colors } = useTheme();
+  const showAlert = useAlert();
   const styles = createStyles(colors);
   const [number, setNumber] = useState('');
   const [busy, setBusy] = useState(false);
@@ -34,7 +35,7 @@ export default function PhoneScreen() {
   const onLookup = async () => {
     const n = number.trim();
     if (!n) {
-      Alert.alert('입력 필요', '조회할 전화번호를 입력하세요.');
+      showAlert('입력 필요', '조회할 전화번호를 입력하세요.', undefined, { variant: 'warning' });
       return;
     }
     setBusy(true);
@@ -45,7 +46,7 @@ export default function PhoneScreen() {
       setResult(r);
     } catch (e) {
       const msg = axios.isAxiosError(e) ? (e.response?.data?.message ?? '조회 실패') : '조회 실패';
-      Alert.alert('조회 실패', msg);
+      showAlert('조회 실패', msg, undefined, { variant: 'danger' });
     } finally {
       setBusy(false);
     }
@@ -54,11 +55,13 @@ export default function PhoneScreen() {
   // 이 번호를 기기에서 실제로 차단 (안드로이드 네이티브 기능, dev build 전용)
   const onBlock = async () => {
     if (!callBlockAvailable) {
-      Alert.alert(
+      showAlert(
         '지원하지 않는 환경',
         Platform.OS === 'android'
           ? 'Expo Go에서는 통화 차단을 쓸 수 없어요. 개발 빌드(dev build)에서만 동작합니다.'
           : '통화 차단은 안드로이드에서만 지원돼요.',
+        undefined,
+        { variant: 'warning' },
       );
       return;
     }
@@ -68,9 +71,11 @@ export default function PhoneScreen() {
       if (!held) {
         const granted = await requestRole();
         if (!granted) {
-          Alert.alert(
+          showAlert(
             '권한 필요',
             '전화 수신 시 차단하려면 "통화 스크리닝 앱"으로 돈킴이를 지정해야 해요. 다시 시도해주세요.',
+            undefined,
+            { variant: 'warning' },
           );
           setBlocking(false);
           return;
@@ -78,9 +83,11 @@ export default function PhoneScreen() {
       }
       await addBlockedNumber(number.trim());
       setBlocked(true);
-      Alert.alert('차단 완료', '이제 이 번호로 걸려오는 전화는 자동으로 거절돼요. 🚫');
+      showAlert('차단 완료', '이제 이 번호로 걸려오는 전화는 자동으로 거절돼요. 🚫', undefined, {
+        variant: 'success',
+      });
     } catch {
-      Alert.alert('차단 실패', '번호 차단 중 문제가 발생했습니다.');
+      showAlert('차단 실패', '번호 차단 중 문제가 발생했습니다.', undefined, { variant: 'danger' });
     } finally {
       setBlocking(false);
     }
@@ -91,16 +98,18 @@ export default function PhoneScreen() {
     setReporting(true);
     try {
       const r = await reportNumber(n);
-      Alert.alert(
+      showAlert(
         r.alreadyReported ? '이미 신고함' : '신고 완료',
         `${r.message}\n누적 신고 ${r.reportCount}회`,
+        undefined,
+        { variant: r.alreadyReported ? 'info' : 'success' },
       );
       // 신고 후 다시 조회해 최신 상태 반영
       const updated = await lookupNumber(n);
       setResult(updated);
     } catch (e) {
       const msg = axios.isAxiosError(e) ? (e.response?.data?.message ?? '신고 실패') : '신고 실패';
-      Alert.alert('신고 실패', msg);
+      showAlert('신고 실패', msg, undefined, { variant: 'danger' });
     } finally {
       setReporting(false);
     }

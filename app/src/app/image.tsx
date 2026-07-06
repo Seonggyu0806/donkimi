@@ -2,13 +2,13 @@ import { analyzeImage, type ImageAnalysisResult } from '@/api/analysis';
 import { RISK, RISK_TEXT } from '@/lib/risk';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
+import { useAlert } from '@/ui/AlertProvider';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -20,6 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ImageScreen() {
   const { colors } = useTheme();
+  const showAlert = useAlert();
   const styles = createStyles(colors);
   const [uris, setUris] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
@@ -28,7 +29,7 @@ export default function ImageScreen() {
   const pickImages = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('권한 필요', '사진 접근 권한을 허용해주세요.');
+      showAlert('권한 필요', '사진 접근 권한을 허용해주세요.', undefined, { variant: 'warning' });
       return;
     }
     const res = await ImagePicker.launchImageLibraryAsync({
@@ -45,7 +46,7 @@ export default function ImageScreen() {
 
   const onAnalyze = async () => {
     if (!uris.length) {
-      Alert.alert('이미지 필요', '먼저 분석할 이미지를 선택하세요.');
+      showAlert('이미지 필요', '먼저 분석할 이미지를 선택하세요.', undefined, { variant: 'warning' });
       return;
     }
     setBusy(true);
@@ -57,7 +58,7 @@ export default function ImageScreen() {
       const msg = axios.isAxiosError(e)
         ? (e.response?.data?.message ?? '분석에 실패했습니다.')
         : '분석에 실패했습니다.';
-      Alert.alert('분석 실패', msg);
+      showAlert('분석 실패', msg, undefined, { variant: 'danger' });
     } finally {
       setBusy(false);
     }
