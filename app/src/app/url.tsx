@@ -1,5 +1,7 @@
 import { analyzeUrl, type UrlAnalysisResult } from '@/api/analysis';
 import { RISK } from '@/lib/risk';
+import { useTheme } from '@/theme/ThemeContext';
+import type { ThemeColors } from '@/theme/colors';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -16,6 +18,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function UrlScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [url, setUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<UrlAnalysisResult | null>(null);
@@ -55,14 +59,14 @@ export default function UrlScreen() {
         <TextInput
           style={styles.input}
           placeholder="https://..."
-          placeholderTextColor="#64748B"
+          placeholderTextColor={colors.textFaint}
           autoCapitalize="none"
           keyboardType="url"
           value={url}
           onChangeText={setUrl}
         />
         <TouchableOpacity style={styles.btn} onPress={onAnalyze} disabled={busy}>
-          {busy ? <ActivityIndicator color="#0F172A" /> : <Text style={styles.btnText}>분석하기</Text>}
+          {busy ? <ActivityIndicator color={colors.accentText} /> : <Text style={styles.btnText}>분석하기</Text>}
         </TouchableOpacity>
 
         {result && risk && (
@@ -99,37 +103,39 @@ export default function UrlScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  scroll: { padding: 24, gap: 14 },
-  back: { color: '#94A3B8', fontSize: 15, marginBottom: 4 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF' },
-  subtitle: { fontSize: 14, color: '#94A3B8', marginBottom: 8 },
-  input: {
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    color: '#FFFFFF',
-    fontSize: 15,
-  },
-  btn: { backgroundColor: '#FACC15', borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
-  btnText: { color: '#0F172A', fontSize: 16, fontWeight: 'bold' },
-  resultCard: { backgroundColor: '#1E293B', borderRadius: 16, padding: 20, gap: 10, marginTop: 8 },
-  badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
-  badgeText: { color: '#0F172A', fontWeight: 'bold', fontSize: 15 },
-  resultType: { color: '#E2E8F0', fontSize: 15, fontWeight: '600' },
-  resultRec: { color: '#FACC15', fontSize: 14 },
-  divider: { height: 1, backgroundColor: '#334155', marginVertical: 4 },
-  resultDetailLabel: { color: '#94A3B8', fontSize: 13, fontWeight: '600' },
-  resultDetail: { color: '#CBD5E1', fontSize: 14, lineHeight: 21 },
-  chatBtn: {
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#FACC15',
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  chatBtnText: { color: '#FACC15', fontSize: 15, fontWeight: '600' },
-});
+function createStyles(c: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: c.background },
+    scroll: { padding: 24, gap: 14 },
+    back: { color: c.textMuted, fontSize: 15, marginBottom: 4 },
+    title: { fontSize: 28, fontWeight: 'bold', color: c.text },
+    subtitle: { fontSize: 14, color: c.textMuted, marginBottom: 8 },
+    input: {
+      backgroundColor: c.surface,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      color: c.text,
+      fontSize: 15,
+    },
+    btn: { backgroundColor: c.accent, borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
+    btnText: { color: c.accentText, fontSize: 16, fontWeight: 'bold' },
+    resultCard: { backgroundColor: c.surface, borderRadius: 16, padding: 20, gap: 10, marginTop: 8 },
+    badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
+    badgeText: { color: c.accentText, fontWeight: 'bold', fontSize: 15 },
+    resultType: { color: c.textSecondary, fontSize: 15, fontWeight: '600' },
+    resultRec: { color: c.accent, fontSize: 14 },
+    divider: { height: 1, backgroundColor: c.border, marginVertical: 4 },
+    resultDetailLabel: { color: c.textMuted, fontSize: 13, fontWeight: '600' },
+    resultDetail: { color: c.textSecondary, fontSize: 14, lineHeight: 21 },
+    chatBtn: {
+      marginTop: 8,
+      borderWidth: 1,
+      borderColor: c.accent,
+      borderRadius: 12,
+      paddingVertical: 12,
+      alignItems: 'center',
+    },
+    chatBtnText: { color: c.accent, fontSize: 15, fontWeight: '600' },
+  });
+}

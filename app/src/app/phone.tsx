@@ -1,6 +1,8 @@
 import { lookupNumber, reportNumber, type NumberLookupResult } from '@/api/number';
 import { RISK } from '@/lib/risk';
 import { addBlockedNumber, callBlockAvailable, isRoleHeld, requestRole } from '@/native/callblock';
+import { useTheme } from '@/theme/ThemeContext';
+import type { ThemeColors } from '@/theme/colors';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -20,6 +22,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const HIGH_RISK_LEVELS = new Set(['HIGH', 'CRITICAL']);
 
 export default function PhoneScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [number, setNumber] = useState('');
   const [busy, setBusy] = useState(false);
   const [reporting, setReporting] = useState(false);
@@ -117,13 +121,13 @@ export default function PhoneScreen() {
         <TextInput
           style={styles.input}
           placeholder="010-1234-5678"
-          placeholderTextColor="#64748B"
+          placeholderTextColor={colors.textFaint}
           keyboardType="phone-pad"
           value={number}
           onChangeText={setNumber}
         />
         <TouchableOpacity style={styles.btn} onPress={onLookup} disabled={busy}>
-          {busy ? <ActivityIndicator color="#0F172A" /> : <Text style={styles.btnText}>조회하기</Text>}
+          {busy ? <ActivityIndicator color={colors.accentText} /> : <Text style={styles.btnText}>조회하기</Text>}
         </TouchableOpacity>
 
         {result && risk && (
@@ -146,7 +150,7 @@ export default function PhoneScreen() {
 
             <TouchableOpacity style={styles.reportBtn} onPress={onReport} disabled={reporting}>
               {reporting ? (
-                <ActivityIndicator color="#EF4444" />
+                <ActivityIndicator color={colors.danger} />
               ) : (
                 <Text style={styles.reportText}>🚨 이 번호 신고하기</Text>
               )}
@@ -166,9 +170,14 @@ export default function PhoneScreen() {
                 disabled={blocking}
               >
                 {blocking ? (
-                  <ActivityIndicator color="#0F172A" />
+                  <ActivityIndicator color={colors.accentText} />
                 ) : (
-                  <Text style={styles.blockBtnText}>
+                  <Text
+                    style={[
+                      styles.blockBtnText,
+                      HIGH_RISK_LEVELS.has(result.riskLevel) && styles.blockBtnTextUrgent,
+                    ]}
+                  >
                     🚫 이 번호 전화 차단하기{HIGH_RISK_LEVELS.has(result.riskLevel) ? ' (권장)' : ''}
                   </Text>
                 )}
@@ -197,61 +206,64 @@ export default function PhoneScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  scroll: { padding: 24, gap: 14 },
-  back: { color: '#94A3B8', fontSize: 15, marginBottom: 4 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF' },
-  subtitle: { fontSize: 14, color: '#94A3B8', marginBottom: 8 },
-  input: {
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    color: '#FFFFFF',
-    fontSize: 15,
-  },
-  btn: { backgroundColor: '#FACC15', borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
-  btnText: { color: '#0F172A', fontSize: 16, fontWeight: 'bold' },
-  resultCard: { backgroundColor: '#1E293B', borderRadius: 16, padding: 20, gap: 10, marginTop: 8 },
-  badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
-  badgeText: { color: '#0F172A', fontWeight: 'bold', fontSize: 15 },
-  resultType: { color: '#E2E8F0', fontSize: 15, fontWeight: '600' },
-  resultCount: { color: '#FACC15', fontSize: 14, fontWeight: '600' },
-  resultMsg: { color: '#CBD5E1', fontSize: 14, lineHeight: 21 },
-  noData: { color: '#94A3B8', fontSize: 16, fontWeight: '600' },
-  reportBtn: {
-    marginTop: 6,
-    borderWidth: 1,
-    borderColor: '#EF4444',
-    borderRadius: 12,
-    paddingVertical: 13,
-    alignItems: 'center',
-  },
-  reportText: { color: '#EF4444', fontSize: 15, fontWeight: '600' },
-  blockBtn: {
-    backgroundColor: '#1E293B',
-    borderWidth: 1,
-    borderColor: '#475569',
-    borderRadius: 12,
-    paddingVertical: 13,
-    alignItems: 'center',
-  },
-  blockBtnUrgent: { backgroundColor: '#EF4444', borderColor: '#EF4444' },
-  blockBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
-  blockedBadge: {
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
-    paddingVertical: 13,
-    alignItems: 'center',
-  },
-  blockedBadgeText: { color: '#94A3B8', fontSize: 15, fontWeight: '600' },
-  chatBtn: {
-    borderWidth: 1,
-    borderColor: '#FACC15',
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  chatBtnText: { color: '#FACC15', fontSize: 15, fontWeight: '600' },
-});
+function createStyles(c: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: c.background },
+    scroll: { padding: 24, gap: 14 },
+    back: { color: c.textMuted, fontSize: 15, marginBottom: 4 },
+    title: { fontSize: 28, fontWeight: 'bold', color: c.text },
+    subtitle: { fontSize: 14, color: c.textMuted, marginBottom: 8 },
+    input: {
+      backgroundColor: c.surface,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      color: c.text,
+      fontSize: 15,
+    },
+    btn: { backgroundColor: c.accent, borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
+    btnText: { color: c.accentText, fontSize: 16, fontWeight: 'bold' },
+    resultCard: { backgroundColor: c.surface, borderRadius: 16, padding: 20, gap: 10, marginTop: 8 },
+    badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
+    badgeText: { color: c.accentText, fontWeight: 'bold', fontSize: 15 },
+    resultType: { color: c.textSecondary, fontSize: 15, fontWeight: '600' },
+    resultCount: { color: c.accent, fontSize: 14, fontWeight: '600' },
+    resultMsg: { color: c.textSecondary, fontSize: 14, lineHeight: 21 },
+    noData: { color: c.textMuted, fontSize: 16, fontWeight: '600' },
+    reportBtn: {
+      marginTop: 6,
+      borderWidth: 1,
+      borderColor: c.danger,
+      borderRadius: 12,
+      paddingVertical: 13,
+      alignItems: 'center',
+    },
+    reportText: { color: c.danger, fontSize: 15, fontWeight: '600' },
+    blockBtn: {
+      backgroundColor: c.background,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 12,
+      paddingVertical: 13,
+      alignItems: 'center',
+    },
+    blockBtnUrgent: { backgroundColor: c.danger, borderColor: c.danger },
+    blockBtnText: { color: c.text, fontSize: 15, fontWeight: '600' },
+    blockBtnTextUrgent: { color: '#FFFFFF' },
+    blockedBadge: {
+      backgroundColor: c.background,
+      borderRadius: 12,
+      paddingVertical: 13,
+      alignItems: 'center',
+    },
+    blockedBadgeText: { color: c.textMuted, fontSize: 15, fontWeight: '600' },
+    chatBtn: {
+      borderWidth: 1,
+      borderColor: c.accent,
+      borderRadius: 12,
+      paddingVertical: 12,
+      alignItems: 'center',
+    },
+    chatBtnText: { color: c.accent, fontSize: 15, fontWeight: '600' },
+  });
+}

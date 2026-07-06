@@ -1,5 +1,7 @@
 import { analyzeVoice, type VoiceAnalysisResult } from '@/api/analysis';
 import { RISK } from '@/lib/risk';
+import { useTheme } from '@/theme/ThemeContext';
+import type { ThemeColors } from '@/theme/colors';
 import axios from 'axios';
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
@@ -16,6 +18,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function VoiceScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [files, setFiles] = useState<{ uri: string; name: string }[]>([]);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<VoiceAnalysisResult | null>(null);
@@ -82,7 +86,7 @@ export default function VoiceScreen() {
         )}
 
         <TouchableOpacity style={styles.btn} onPress={onAnalyze} disabled={busy || !files.length}>
-          {busy ? <ActivityIndicator color="#0F172A" /> : <Text style={styles.btnText}>분석하기</Text>}
+          {busy ? <ActivityIndicator color={colors.accentText} /> : <Text style={styles.btnText}>분석하기</Text>}
         </TouchableOpacity>
 
         {result && risk && (
@@ -119,41 +123,43 @@ export default function VoiceScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  scroll: { padding: 24, gap: 14 },
-  back: { color: '#94A3B8', fontSize: 15, marginBottom: 4 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#FFFFFF' },
-  subtitle: { fontSize: 14, color: '#94A3B8', marginBottom: 8 },
-  pickBox: {
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
-    paddingVertical: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#334155',
-    borderStyle: 'dashed',
-  },
-  pickText: { color: '#94A3B8', fontSize: 16 },
-  fileList: { gap: 6, backgroundColor: '#1E293B', borderRadius: 12, padding: 14 },
-  fileName: { color: '#CBD5E1', fontSize: 14 },
-  btn: { backgroundColor: '#FACC15', borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
-  btnText: { color: '#0F172A', fontSize: 16, fontWeight: 'bold' },
-  resultCard: { backgroundColor: '#1E293B', borderRadius: 16, padding: 20, gap: 10, marginTop: 8 },
-  badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
-  badgeText: { color: '#0F172A', fontWeight: 'bold', fontSize: 15 },
-  resultType: { color: '#E2E8F0', fontSize: 15, fontWeight: '600' },
-  divider: { height: 1, backgroundColor: '#334155', marginVertical: 4 },
-  detailLabel: { color: '#94A3B8', fontSize: 13, fontWeight: '600' },
-  detail: { color: '#CBD5E1', fontSize: 14, lineHeight: 21 },
-  chatBtn: {
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#FACC15',
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  chatBtnText: { color: '#FACC15', fontSize: 15, fontWeight: '600' },
-});
+function createStyles(c: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: c.background },
+    scroll: { padding: 24, gap: 14 },
+    back: { color: c.textMuted, fontSize: 15, marginBottom: 4 },
+    title: { fontSize: 28, fontWeight: 'bold', color: c.text },
+    subtitle: { fontSize: 14, color: c.textMuted, marginBottom: 8 },
+    pickBox: {
+      backgroundColor: c.surface,
+      borderRadius: 12,
+      paddingVertical: 28,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: c.border,
+      borderStyle: 'dashed',
+    },
+    pickText: { color: c.textMuted, fontSize: 16 },
+    fileList: { gap: 6, backgroundColor: c.surface, borderRadius: 12, padding: 14 },
+    fileName: { color: c.textSecondary, fontSize: 14 },
+    btn: { backgroundColor: c.accent, borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
+    btnText: { color: c.accentText, fontSize: 16, fontWeight: 'bold' },
+    resultCard: { backgroundColor: c.surface, borderRadius: 16, padding: 20, gap: 10, marginTop: 8 },
+    badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
+    badgeText: { color: c.accentText, fontWeight: 'bold', fontSize: 15 },
+    resultType: { color: c.textSecondary, fontSize: 15, fontWeight: '600' },
+    divider: { height: 1, backgroundColor: c.border, marginVertical: 4 },
+    detailLabel: { color: c.textMuted, fontSize: 13, fontWeight: '600' },
+    detail: { color: c.textSecondary, fontSize: 14, lineHeight: 21 },
+    chatBtn: {
+      marginTop: 8,
+      borderWidth: 1,
+      borderColor: c.accent,
+      borderRadius: 12,
+      paddingVertical: 12,
+      alignItems: 'center',
+    },
+    chatBtnText: { color: c.accent, fontSize: 15, fontWeight: '600' },
+  });
+}

@@ -1,4 +1,6 @@
 import { getConversationHistory, sendChat } from '@/api/chat';
+import { useTheme } from '@/theme/ThemeContext';
+import type { ThemeColors } from '@/theme/colors';
 import axios from 'axios';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -25,6 +27,9 @@ function newSessionId() {
 }
 
 export default function ChatScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   // 진단 결과에서 온 맥락(type/riskLevel/summary) 또는 기존 세션(sessionId)
   const params = useLocalSearchParams<{
     type?: string;
@@ -108,7 +113,7 @@ export default function ChatScreen() {
 
         {loadingHistory ? (
           <View style={styles.center}>
-            <ActivityIndicator color="#FACC15" size="large" />
+            <ActivityIndicator color={colors.accent} size="large" />
           </View>
         ) : (
           <ScrollView
@@ -124,7 +129,7 @@ export default function ChatScreen() {
             ))}
             {busy && (
               <View style={[styles.bubble, styles.bubbleAI]}>
-                <ActivityIndicator color="#94A3B8" />
+                <ActivityIndicator color={colors.textMuted} />
               </View>
             )}
           </ScrollView>
@@ -134,7 +139,7 @@ export default function ChatScreen() {
           <TextInput
             style={styles.input}
             placeholder="메시지를 입력하세요..."
-            placeholderTextColor="#64748B"
+            placeholderTextColor={colors.textFaint}
             value={input}
             onChangeText={setInput}
             multiline
@@ -148,46 +153,48 @@ export default function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1E293B',
-  },
-  back: { color: '#94A3B8', fontSize: 15 },
-  headerTitle: { color: '#FFFFFF', fontSize: 17, fontWeight: 'bold' },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  list: { flex: 1 },
-  listContent: { padding: 16, gap: 10 },
-  bubble: { maxWidth: '85%', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10 },
-  bubbleUser: { alignSelf: 'flex-end', backgroundColor: '#FACC15' },
-  bubbleAI: { alignSelf: 'flex-start', backgroundColor: '#1E293B' },
-  textUser: { color: '#0F172A', fontSize: 15, lineHeight: 21 },
-  textAI: { color: '#E2E8F0', fontSize: 15, lineHeight: 21 },
-  inputBar: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 8,
-    padding: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#1E293B',
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#1E293B',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 10,
-    color: '#FFFFFF',
-    fontSize: 15,
-    maxHeight: 120,
-  },
-  sendBtn: { backgroundColor: '#FACC15', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 11 },
-  sendText: { color: '#0F172A', fontWeight: 'bold', fontSize: 15 },
-});
+function createStyles(c: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: c.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+    },
+    back: { color: c.textMuted, fontSize: 15 },
+    headerTitle: { color: c.text, fontSize: 17, fontWeight: 'bold' },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    list: { flex: 1 },
+    listContent: { padding: 16, gap: 10 },
+    bubble: { maxWidth: '85%', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10 },
+    bubbleUser: { alignSelf: 'flex-end', backgroundColor: c.accent },
+    bubbleAI: { alignSelf: 'flex-start', backgroundColor: c.surface },
+    textUser: { color: c.accentText, fontSize: 15, lineHeight: 21 },
+    textAI: { color: c.textSecondary, fontSize: 15, lineHeight: 21 },
+    inputBar: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      gap: 8,
+      padding: 12,
+      borderTopWidth: 1,
+      borderTopColor: c.border,
+    },
+    input: {
+      flex: 1,
+      backgroundColor: c.surface,
+      borderRadius: 20,
+      paddingHorizontal: 16,
+      paddingTop: 10,
+      paddingBottom: 10,
+      color: c.text,
+      fontSize: 15,
+      maxHeight: 120,
+    },
+    sendBtn: { backgroundColor: c.accent, borderRadius: 20, paddingHorizontal: 18, paddingVertical: 11 },
+    sendText: { color: c.accentText, fontWeight: 'bold', fontSize: 15 },
+  });
+}

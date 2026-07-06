@@ -1,4 +1,6 @@
 import { useAuth } from '@/contexts/auth';
+import { useTheme } from '@/theme/ThemeContext';
+import type { ThemeColors } from '@/theme/colors';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -16,6 +18,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RegisterScreen() {
   const { register } = useAuth();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -54,14 +58,14 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="닉네임"
-          placeholderTextColor="#64748B"
+          placeholderTextColor={colors.textFaint}
           value={nickname}
           onChangeText={setNickname}
         />
         <TextInput
           style={styles.input}
           placeholder="이메일"
-          placeholderTextColor="#64748B"
+          placeholderTextColor={colors.textFaint}
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -70,14 +74,14 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="비밀번호"
-          placeholderTextColor="#64748B"
+          placeholderTextColor={colors.textFaint}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
         />
 
         <TouchableOpacity style={styles.btn} onPress={onSubmit} disabled={busy}>
-          {busy ? <ActivityIndicator color="#0F172A" /> : <Text style={styles.btnText}>회원가입</Text>}
+          {busy ? <ActivityIndicator color={colors.accentText} /> : <Text style={styles.btnText}>회원가입</Text>}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.replace('/login')}>
@@ -88,26 +92,28 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  inner: { flex: 1, paddingHorizontal: 24, justifyContent: 'center', gap: 14 },
-  title: { fontSize: 30, fontWeight: 'bold', color: '#FFFFFF' },
-  subtitle: { fontSize: 14, color: '#94A3B8', marginBottom: 12 },
-  input: {
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    color: '#FFFFFF',
-    fontSize: 15,
-  },
-  btn: {
-    backgroundColor: '#FACC15',
-    borderRadius: 12,
-    paddingVertical: 15,
-    alignItems: 'center',
-    marginTop: 6,
-  },
-  btnText: { color: '#0F172A', fontSize: 16, fontWeight: 'bold' },
-  link: { color: '#94A3B8', textAlign: 'center', marginTop: 16, fontSize: 14 },
-});
+function createStyles(c: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: c.background },
+    inner: { flex: 1, paddingHorizontal: 24, justifyContent: 'center', gap: 14 },
+    title: { fontSize: 30, fontWeight: 'bold', color: c.text },
+    subtitle: { fontSize: 14, color: c.textMuted, marginBottom: 12 },
+    input: {
+      backgroundColor: c.surface,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      color: c.text,
+      fontSize: 15,
+    },
+    btn: {
+      backgroundColor: c.accent,
+      borderRadius: 12,
+      paddingVertical: 15,
+      alignItems: 'center',
+      marginTop: 6,
+    },
+    btnText: { color: c.accentText, fontSize: 16, fontWeight: 'bold' },
+    link: { color: c.textMuted, textAlign: 'center', marginTop: 16, fontSize: 14 },
+  });
+}

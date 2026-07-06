@@ -5,6 +5,8 @@ import {
   removeBlockedNumber,
   requestRole,
 } from '@/native/callblock';
+import { useTheme } from '@/theme/ThemeContext';
+import type { ThemeColors } from '@/theme/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -21,6 +23,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function BlockListScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [numbers, setNumbers] = useState<string[]>([]);
   const [roleHeld, setRoleHeld] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -88,7 +92,7 @@ export default function BlockListScreen() {
         </View>
       ) : loading ? (
         <View style={styles.center}>
-          <ActivityIndicator color="#FACC15" size="large" />
+          <ActivityIndicator color={colors.accent} size="large" />
         </View>
       ) : (
         <>
@@ -99,7 +103,7 @@ export default function BlockListScreen() {
               </Text>
               <TouchableOpacity style={styles.roleBtn} onPress={onRequestRole} disabled={busyRole}>
                 {busyRole ? (
-                  <ActivityIndicator color="#0F172A" />
+                  <ActivityIndicator color={colors.accentText} />
                 ) : (
                   <Text style={styles.roleBtnText}>권한 설정하기</Text>
                 )}
@@ -114,7 +118,7 @@ export default function BlockListScreen() {
             ListEmptyComponent={<Text style={styles.empty}>차단한 번호가 아직 없어요.</Text>}
             renderItem={({ item }) => (
               <View style={styles.item}>
-                <Ionicons name="call-outline" size={18} color="#94A3B8" />
+                <Ionicons name="call-outline" size={18} color={colors.textMuted} />
                 <Text style={styles.itemText}>{item}</Text>
                 <TouchableOpacity onPress={() => onRemove(item)}>
                   <Text style={styles.removeText}>해제</Text>
@@ -128,40 +132,42 @@ export default function BlockListScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F172A' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  back: { color: '#94A3B8', fontSize: 15 },
-  title: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  empty: { color: '#64748B', textAlign: 'center', marginTop: 40, fontSize: 15, paddingHorizontal: 24 },
-  roleCard: {
-    marginHorizontal: 16,
-    marginBottom: 8,
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
-    padding: 16,
-    gap: 10,
-  },
-  roleText: { color: '#CBD5E1', fontSize: 14, lineHeight: 20 },
-  roleBtn: { backgroundColor: '#FACC15', borderRadius: 10, paddingVertical: 11, alignItems: 'center' },
-  roleBtnText: { color: '#0F172A', fontSize: 14, fontWeight: 'bold' },
-  list: { padding: 16, gap: 8 },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  itemText: { flex: 1, color: '#E2E8F0', fontSize: 15, fontWeight: '600' },
-  removeText: { color: '#EF4444', fontSize: 14, fontWeight: '600' },
-});
+function createStyles(c: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: c.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+    },
+    back: { color: c.textMuted, fontSize: 15 },
+    title: { color: c.text, fontSize: 18, fontWeight: 'bold' },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+    empty: { color: c.textFaint, textAlign: 'center', marginTop: 40, fontSize: 15, paddingHorizontal: 24 },
+    roleCard: {
+      marginHorizontal: 16,
+      marginBottom: 8,
+      backgroundColor: c.surface,
+      borderRadius: 12,
+      padding: 16,
+      gap: 10,
+    },
+    roleText: { color: c.textSecondary, fontSize: 14, lineHeight: 20 },
+    roleBtn: { backgroundColor: c.accent, borderRadius: 10, paddingVertical: 11, alignItems: 'center' },
+    roleBtnText: { color: c.accentText, fontSize: 14, fontWeight: 'bold' },
+    list: { padding: 16, gap: 8 },
+    item: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      backgroundColor: c.surface,
+      borderRadius: 12,
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+    },
+    itemText: { flex: 1, color: c.textSecondary, fontSize: 15, fontWeight: '600' },
+    removeText: { color: c.danger, fontSize: 14, fontWeight: '600' },
+  });
+}
