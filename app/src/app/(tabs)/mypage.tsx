@@ -33,6 +33,12 @@ export default function MypageTab() {
           <Ionicons name="chevron-forward" size={18} color="#64748B" />
         </TouchableOpacity>
 
+        <TouchableOpacity style={styles.menuBtn} onPress={() => router.push('/blocklist')}>
+          <Ionicons name="ban-outline" size={20} color="#FACC15" />
+          <Text style={styles.menuText}>차단 번호 관리</Text>
+          <Ionicons name="chevron-forward" size={18} color="#64748B" />
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
           <Ionicons name="log-out-outline" size={20} color="#EF4444" />
           <Text style={styles.logoutText}>로그아웃</Text>

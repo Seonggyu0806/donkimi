@@ -1,0 +1,167 @@
+import {
+  callBlockAvailable,
+  getBlockedNumbers,
+  isRoleHeld,
+  removeBlockedNumber,
+  requestRole,
+} from '@/native/callblock';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+export default function BlockListScreen() {
+  const [numbers, setNumbers] = useState<string[]>([]);
+  const [roleHeld, setRoleHeld] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [busyRole, setBusyRole] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [list, held] = await Promise.all([getBlockedNumbers(), isRoleHeld()]);
+      setNumbers(list);
+      setRoleHeld(held);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const onRequestRole = async () => {
+    setBusyRole(true);
+    try {
+      const granted = await requestRole();
+      setRoleHeld(granted);
+      if (!granted) {
+        Alert.alert('권한 필요', '통화 차단을 쓰려면 돈킴이를 "통화 스크리닝 앱"으로 지정해야 해요.');
+      }
+    } finally {
+      setBusyRole(false);
+    }
+  };
+
+  const onRemove = (number: string) => {
+    Alert.alert('차단 해제', `${number} 번호의 차단을 해제할까요?`, [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '해제',
+        style: 'destructive',
+        onPress: async () => {
+          await removeBlockedNumber(number);
+          setNumbers((prev) => prev.filter((n) => n !== number));
+        },
+      },
+    ]);
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.back}>← 뒤로</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>🚫 차단 번호 관리</Text>
+        <View style={{ width: 44 }} />
+      </View>
+
+      {!callBlockAvailable ? (
+        <View style={styles.center}>
+          <Text style={styles.empty}>
+            {Platform.OS === 'android'
+              ? '이 기능은 개발 빌드(dev build)에서만 사용할 수 있어요.'
+              : '통화 차단은 안드로이드에서만 지원돼요.'}
+          </Text>
+        </View>
+      ) : loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator color="#FACC15" size="large" />
+        </View>
+      ) : (
+        <>
+          {!roleHeld && (
+            <View style={styles.roleCard}>
+              <Text style={styles.roleText}>
+                통화 차단을 쓰려면 돈킴이를 통화 스크리닝 앱으로 지정해야 해요.
+              </Text>
+              <TouchableOpacity style={styles.roleBtn} onPress={onRequestRole} disabled={busyRole}>
+                {busyRole ? (
+                  <ActivityIndicator color="#0F172A" />
+                ) : (
+                  <Text style={styles.roleBtnText}>권한 설정하기</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <FlatList
+            data={numbers}
+            keyExtractor={(item) => item}
+            contentContainerStyle={styles.list}
+            ListEmptyComponent={<Text style={styles.empty}>차단한 번호가 아직 없어요.</Text>}
+            renderItem={({ item }) => (
+              <View style={styles.item}>
+                <Ionicons name="call-outline" size={18} color="#94A3B8" />
+                <Text style={styles.itemText}>{item}</Text>
+                <TouchableOpacity onPress={() => onRemove(item)}>
+                  <Text style={styles.removeText}>해제</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        </>
+      )}
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0F172A' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  back: { color: '#94A3B8', fontSize: 15 },
+  title: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  empty: { color: '#64748B', textAlign: 'center', marginTop: 40, fontSize: 15, paddingHorizontal: 24 },
+  roleCard: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    padding: 16,
+    gap: 10,
+  },
+  roleText: { color: '#CBD5E1', fontSize: 14, lineHeight: 20 },
+  roleBtn: { backgroundColor: '#FACC15', borderRadius: 10, paddingVertical: 11, alignItems: 'center' },
+  roleBtnText: { color: '#0F172A', fontSize: 14, fontWeight: 'bold' },
+  list: { padding: 16, gap: 8 },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+  },
+  itemText: { flex: 1, color: '#E2E8F0', fontSize: 15, fontWeight: '600' },
+  removeText: { color: '#EF4444', fontSize: 14, fontWeight: '600' },
+});
