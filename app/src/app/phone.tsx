@@ -1,5 +1,5 @@
 import { lookupNumber, reportNumber, type NumberLookupResult } from '@/api/number';
-import { RISK } from '@/lib/risk';
+import { RISK, RISK_TEXT } from '@/lib/risk';
 import { addBlockedNumber, callBlockAvailable, isRoleHeld, requestRole } from '@/native/callblock';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
@@ -225,7 +225,7 @@ function createStyles(c: ThemeColors) {
     btnText: { color: c.accentText, fontSize: 16, fontWeight: 'bold' },
     resultCard: { backgroundColor: c.surface, borderRadius: 16, padding: 20, gap: 10, marginTop: 8 },
     badge: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
-    badgeText: { color: c.accentText, fontWeight: 'bold', fontSize: 15 },
+    badgeText: { color: RISK_TEXT, fontWeight: 'bold', fontSize: 15 },
     resultType: { color: c.textSecondary, fontSize: 15, fontWeight: '600' },
     resultCount: { color: c.accent, fontSize: 14, fontWeight: '600' },
     resultMsg: { color: c.textSecondary, fontSize: 14, lineHeight: 21 },

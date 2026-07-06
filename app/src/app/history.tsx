@@ -1,6 +1,6 @@
 import { getAnalysisHistory, type AnalysisHistoryItem } from '@/api/analysis';
 import { getChatSessions, type ChatSessionItem } from '@/api/chat';
-import { RISK } from '@/lib/risk';
+import { RISK, RISK_TEXT } from '@/lib/risk';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
 import { router } from 'expo-router';
@@ -19,11 +19,11 @@ const TYPE_LABEL: Record<string, string> = { URL: 'URL', IMAGE: '이미지', VOI
 
 type Styles = ReturnType<typeof createStyles>;
 
-function RiskBadge({ level, styles, accentText }: { level: string; styles: Styles; accentText: string }) {
+function RiskBadge({ level, styles }: { level: string; styles: Styles }) {
   const r = RISK[level] ?? RISK.MEDIUM;
   return (
     <View style={[styles.badge, { backgroundColor: r.color }]}>
-      <Text style={[styles.badgeText, { color: accentText }]}>{r.label}</Text>
+      <Text style={[styles.badgeText, { color: RISK_TEXT }]}>{r.label}</Text>
     </View>
   );
 }
@@ -89,7 +89,7 @@ export default function HistoryScreen() {
                 <View key={item.id} style={styles.item}>
                   <View style={styles.itemTop}>
                     <Text style={styles.itemType}>{TYPE_LABEL[item.type ?? 'URL'] ?? item.type}</Text>
-                    <RiskBadge level={item.riskLevel} styles={styles} accentText={colors.accentText} />
+                    <RiskBadge level={item.riskLevel} styles={styles} />
                   </View>
                   <Text style={styles.itemTarget} numberOfLines={1}>
                     {item.target ?? '-'}
@@ -111,7 +111,7 @@ export default function HistoryScreen() {
               >
                 <View style={styles.itemTop}>
                   <Text style={styles.itemType}>💬 상담</Text>
-                  <RiskBadge level={c.riskLevel} styles={styles} accentText={colors.accentText} />
+                  <RiskBadge level={c.riskLevel} styles={styles} />
                 </View>
                 <Text style={styles.itemTarget} numberOfLines={2}>
                   {c.preview}
