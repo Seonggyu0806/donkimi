@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -24,6 +25,45 @@ interface Msg {
 
 function newSessionId() {
   return `sess-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+// 카톡/아이메시지 스타일 "입력 중..." 점 3개 바운스 애니메이션
+function TypingDots({ color }: { color: string }) {
+  const dot1 = useRef(new Animated.Value(0)).current;
+  const dot2 = useRef(new Animated.Value(0)).current;
+  const dot3 = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const bounce = (val: Animated.Value, delay: number) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(delay),
+          Animated.timing(val, { toValue: 1, duration: 300, useNativeDriver: true }),
+          Animated.timing(val, { toValue: 0, duration: 300, useNativeDriver: true }),
+          Animated.delay(600 - delay),
+        ]),
+      );
+    const anims = [bounce(dot1, 0), bounce(dot2, 150), bounce(dot3, 300)];
+    anims.forEach((a) => a.start());
+    return () => anims.forEach((a) => a.stop());
+  }, [dot1, dot2, dot3]);
+
+  const dotStyle = (val: Animated.Value) => ({
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: color,
+    opacity: val.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }),
+    transform: [{ translateY: val.interpolate({ inputRange: [0, 1], outputRange: [0, -4] }) }],
+  });
+
+  return (
+    <View style={{ flexDirection: 'row', gap: 5, paddingVertical: 3 }}>
+      <Animated.View style={dotStyle(dot1)} />
+      <Animated.View style={dotStyle(dot2)} />
+      <Animated.View style={dotStyle(dot3)} />
+    </View>
+  );
 }
 
 export default function ChatScreen() {
@@ -101,8 +141,12 @@ export default function ChatScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
             <Text style={styles.back}>← 뒤로</Text>
@@ -120,6 +164,7 @@ export default function ChatScreen() {
             ref={scrollRef}
             style={styles.list}
             contentContainerStyle={styles.listContent}
+            keyboardShouldPersistTaps="handled"
             onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
           >
             {messages.map((m, i) => (
@@ -128,8 +173,8 @@ export default function ChatScreen() {
               </View>
             ))}
             {busy && (
-              <View style={[styles.bubble, styles.bubbleAI]}>
-                <ActivityIndicator color={colors.textMuted} />
+              <View style={[styles.bubble, styles.bubbleAI, styles.typingBubble]}>
+                <TypingDots color={colors.textMuted} />
               </View>
             )}
           </ScrollView>
@@ -142,6 +187,7 @@ export default function ChatScreen() {
             placeholderTextColor={colors.textFaint}
             value={input}
             onChangeText={setInput}
+            onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100)}
             multiline
           />
           <TouchableOpacity style={styles.sendBtn} onPress={send} disabled={busy}>
@@ -173,6 +219,7 @@ function createStyles(c: ThemeColors) {
     bubble: { maxWidth: '85%', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10 },
     bubbleUser: { alignSelf: 'flex-end', backgroundColor: c.accent },
     bubbleAI: { alignSelf: 'flex-start', backgroundColor: c.surface },
+    typingBubble: { paddingVertical: 12 },
     textUser: { color: c.accentText, fontSize: 15, lineHeight: 21 },
     textAI: { color: c.textSecondary, fontSize: 15, lineHeight: 21 },
     inputBar: {
@@ -182,6 +229,7 @@ function createStyles(c: ThemeColors) {
       padding: 12,
       borderTopWidth: 1,
       borderTopColor: c.border,
+      backgroundColor: c.background,
     },
     input: {
       flex: 1,
