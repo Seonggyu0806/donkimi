@@ -39,6 +39,13 @@ public class UserController {
         return ResponseEntity.ok(success("로그인 성공했습니다", response));
     }
 
+    @PostMapping("/oauth/google")            // POST /api/v1/users/oauth/google
+    @Operation(summary = "구글 로그인", description = "구글 ID 토큰으로 로그인/회원가입합니다 (신규 계정이면 자동 가입)")
+    public ResponseEntity<Map<String, Object>> loginWithGoogle(@RequestBody UserDto.GoogleLoginRequest request) {
+        UserDto.LoginResponse response = userService.loginWithGoogle(request);
+        return ResponseEntity.ok(success("구글 로그인 성공했습니다", response));
+    }
+
     @PostMapping("/logout")                 // POST /api/v1/users/logout
     @Operation(summary = "로그아웃", description = "로그아웃합니다")
     public ResponseEntity<Map<String, Object>> logout() {

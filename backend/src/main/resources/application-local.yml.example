@@ -24,6 +24,9 @@ google:
   vision:
     api:
       key: PLACEHOLDER
+  oauth:
+    # 구글 소셜 로그인(웹 애플리케이션 클라이언트 ID). 비워두면 검증 없이 통과(개발용)
+    web-client-id: ""
 openai:
   api:
     key: PLACEHOLDER

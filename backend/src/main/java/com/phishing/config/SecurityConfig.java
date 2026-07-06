@@ -48,6 +48,7 @@ public class SecurityConfig {
                                 "/api/v1/analysis/history/test",
                                 "/api/v1/users",
                                 "/api/v1/users/login",
+                                "/api/v1/users/oauth/google",
                                 "/api/v1/admin/login",
                                 "/swagger-ui.html",
                                 "/error",

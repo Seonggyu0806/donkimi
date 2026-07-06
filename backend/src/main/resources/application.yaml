@@ -46,6 +46,9 @@ google:
   vision:
     api:
       key: ${GOOGLE_VISION_API_KEY:PLACEHOLDER}
+  oauth:
+    # 구글 소셜 로그인 검증용 "웹 애플리케이션" OAuth 클라이언트 ID (id_token의 aud 검증)
+    web-client-id: ${GOOGLE_OAUTH_WEB_CLIENT_ID:}
 
 openai:
   api:

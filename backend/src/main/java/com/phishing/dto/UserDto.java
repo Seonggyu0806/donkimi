@@ -82,6 +82,15 @@ public class UserDto {
 
     @Getter
     @NoArgsConstructor
+    public static class GoogleLoginRequest {
+        // 구글 소셜 로그인 요청 DTO
+        // POST /api/v1/users/oauth/google 요청 바디
+
+        private String idToken;     // 앱(Google Sign-In)에서 받은 구글 ID 토큰
+    }
+
+    @Getter
+    @NoArgsConstructor
     public static class WithdrawRequest {
         // 회원 탈퇴 요청 DTO
         // DELETE /api/v1/users/me 요청 바디

@@ -18,6 +18,7 @@ public class UserService {
     private final UserRepository userRepository;    // DB 접근용
     private final PasswordEncoder passwordEncoder;  // 비밀번호 암호화용
     private final JwtUtil jwtUtil;  // JWT 토큰 생성용
+    private final GoogleAuthService googleAuthService; // 구글 ID 토큰 검증용
 
     // 회원가입
     public UserDto.JoinResponse join(UserDto.JoinRequest request) {
@@ -52,8 +53,8 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 틀렸습니다"));
         // 없으면 예외 발생
 
-        // 비밀번호 확인
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        // 비밀번호 확인 (소셜 로그인 계정은 비밀번호가 없어 일반 로그인 불가)
+        if (user.getPassword() == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 틀렸습니다");
             // 비밀번호 틀리면 예외 발생
         }
@@ -61,6 +62,19 @@ public class UserService {
         // JWT 토큰 생성
         String accessToken = jwtUtil.generateToken(user.getId(), "USER");
 
+        return new UserDto.LoginResponse(accessToken, user.getEmail(), user.getNickname());
+    }
+
+    // 구글 소셜 로그인 (신규면 가입까지 자동 처리)
+    public UserDto.LoginResponse loginWithGoogle(UserDto.GoogleLoginRequest request) {
+        GoogleAuthService.GoogleUserInfo info = googleAuthService.verifyIdToken(request.getIdToken());
+
+        User user = userRepository.findByEmail(info.email())
+                .orElseGet(() -> userRepository.save(
+                        new User(info.email(), info.name(), "GOOGLE", info.providerId())
+                ));
+
+        String accessToken = jwtUtil.generateToken(user.getId(), "USER");
         return new UserDto.LoginResponse(accessToken, user.getEmail(), user.getNickname());
     }
 
@@ -86,8 +100,8 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다"));
 
-        // 비밀번호 확인
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        // 비밀번호 확인 (소셜 로그인 계정은 비밀번호가 없으므로 확인 생략)
+        if (user.getPassword() != null && !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 틀렸습니다");
         }
 
