@@ -40,4 +40,5 @@ example
 
 # generated native folders
 /ios
-/android
+# /android 는 커스텀 네이티브(통화차단) 코드가 있어 git으로 관리함
+# 주의: `npx expo prebuild --clean` 실행 시 커스텀 코드가 날아가므로 --clean 금지

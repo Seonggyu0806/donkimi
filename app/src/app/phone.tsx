@@ -1,10 +1,12 @@
 import { lookupNumber, reportNumber, type NumberLookupResult } from '@/api/number';
+import { addBlockedNumber, callBlockAvailable, isRoleHeld, requestRole } from '@/native/callblock';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,6 +15,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const HIGH_RISK_LEVELS = new Set(['HIGH', 'CRITICAL']);
 
 const RISK: Record<string, { color: string; label: string }> = {
   SAFE: { color: '#22C55E', label: '안전' },
@@ -26,6 +30,8 @@ export default function PhoneScreen() {
   const [number, setNumber] = useState('');
   const [busy, setBusy] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [blocking, setBlocking] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const [result, setResult] = useState<NumberLookupResult | null>(null);
 
   const onLookup = async () => {
@@ -36,6 +42,7 @@ export default function PhoneScreen() {
     }
     setBusy(true);
     setResult(null);
+    setBlocked(false);
     try {
       const r = await lookupNumber(n);
       setResult(r);
@@ -44,6 +51,41 @@ export default function PhoneScreen() {
       Alert.alert('조회 실패', msg);
     } finally {
       setBusy(false);
+    }
+  };
+
+  // 이 번호를 기기에서 실제로 차단 (안드로이드 네이티브 기능, dev build 전용)
+  const onBlock = async () => {
+    if (!callBlockAvailable) {
+      Alert.alert(
+        '지원하지 않는 환경',
+        Platform.OS === 'android'
+          ? 'Expo Go에서는 통화 차단을 쓸 수 없어요. 개발 빌드(dev build)에서만 동작합니다.'
+          : '통화 차단은 안드로이드에서만 지원돼요.',
+      );
+      return;
+    }
+    setBlocking(true);
+    try {
+      const held = await isRoleHeld();
+      if (!held) {
+        const granted = await requestRole();
+        if (!granted) {
+          Alert.alert(
+            '권한 필요',
+            '전화 수신 시 차단하려면 "통화 스크리닝 앱"으로 돈킴이를 지정해야 해요. 다시 시도해주세요.',
+          );
+          setBlocking(false);
+          return;
+        }
+      }
+      await addBlockedNumber(number.trim());
+      setBlocked(true);
+      Alert.alert('차단 완료', '이제 이 번호로 걸려오는 전화는 자동으로 거절돼요. 🚫');
+    } catch {
+      Alert.alert('차단 실패', '번호 차단 중 문제가 발생했습니다.');
+    } finally {
+      setBlocking(false);
     }
   };
 
@@ -117,6 +159,29 @@ export default function PhoneScreen() {
               )}
             </TouchableOpacity>
 
+            {blocked ? (
+              <View style={styles.blockedBadge}>
+                <Text style={styles.blockedBadgeText}>🚫 차단된 번호예요</Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={[
+                  styles.blockBtn,
+                  HIGH_RISK_LEVELS.has(result.riskLevel) && styles.blockBtnUrgent,
+                ]}
+                onPress={onBlock}
+                disabled={blocking}
+              >
+                {blocking ? (
+                  <ActivityIndicator color="#0F172A" />
+                ) : (
+                  <Text style={styles.blockBtnText}>
+                    🚫 이 번호 전화 차단하기{HIGH_RISK_LEVELS.has(result.riskLevel) ? ' (권장)' : ''}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity
               style={styles.chatBtn}
               onPress={() =>
@@ -171,6 +236,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   reportText: { color: '#EF4444', fontSize: 15, fontWeight: '600' },
+  blockBtn: {
+    backgroundColor: '#1E293B',
+    borderWidth: 1,
+    borderColor: '#475569',
+    borderRadius: 12,
+    paddingVertical: 13,
+    alignItems: 'center',
+  },
+  blockBtnUrgent: { backgroundColor: '#EF4444', borderColor: '#EF4444' },
+  blockBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
+  blockedBadge: {
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    paddingVertical: 13,
+    alignItems: 'center',
+  },
+  blockedBadgeText: { color: '#94A3B8', fontSize: 15, fontWeight: '600' },
   chatBtn: {
     borderWidth: 1,
     borderColor: '#FACC15',

@@ -1,6 +1,8 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { setAuthToken } from '@/api/client';
+import { Alert } from 'react-native';
+import { router } from 'expo-router';
+import { setAuthToken, setUnauthorizedHandler } from '@/api/client';
 import { loginApi, registerApi } from '@/api/auth';
 
 interface User {
@@ -62,6 +64,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await SecureStore.deleteItemAsync(USER_KEY);
     setUser(null);
   };
+
+  // 토큰 만료(401) 시: 세션 정리 + 로그인 화면으로. 중복 알림 방지용 ref.
+  const handledExpiry = useRef(false);
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      if (handledExpiry.current) return;
+      handledExpiry.current = true;
+      logout().finally(() => {
+        Alert.alert('세션 만료', '로그인이 만료되었습니다. 다시 로그인해주세요.');
+        router.replace('/login');
+        setTimeout(() => {
+          handledExpiry.current = false;
+        }, 2000);
+      });
+    });
+    return () => setUnauthorizedHandler(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout }}>
