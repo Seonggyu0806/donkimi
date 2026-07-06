@@ -1,4 +1,5 @@
 import { analyzeImage, type ImageAnalysisResult } from '@/api/analysis';
+import { RISK } from '@/lib/risk';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -14,14 +15,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const RISK: Record<string, { color: string; label: string }> = {
-  SAFE: { color: '#22C55E', label: '안전' },
-  LOW: { color: '#84CC16', label: '낮음' },
-  MEDIUM: { color: '#FACC15', label: '중간' },
-  HIGH: { color: '#F97316', label: '주의' },
-  CRITICAL: { color: '#EF4444', label: '위험' },
-};
 
 export default function ImageScreen() {
   const [uris, setUris] = useState<string[]>([]);
