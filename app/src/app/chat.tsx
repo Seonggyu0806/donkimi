@@ -1,6 +1,7 @@
 import { getConversationHistory, sendChat } from '@/api/chat';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
+import { RichText } from '@/ui/RichText';
 import axios from 'axios';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -169,7 +170,7 @@ export default function ChatScreen() {
           >
             {messages.map((m, i) => (
               <View key={i} style={[styles.bubble, m.role === 'user' ? styles.bubbleUser : styles.bubbleAI]}>
-                <Text style={m.role === 'user' ? styles.textUser : styles.textAI}>{m.content}</Text>
+                <RichText style={m.role === 'user' ? styles.textUser : styles.textAI}>{m.content}</RichText>
               </View>
             ))}
             {busy && (
