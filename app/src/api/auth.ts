@@ -17,3 +17,9 @@ export async function loginApi(email: string, password: string): Promise<LoginRe
   const res = await apiClient.post('/users/login', { email, password });
   return res.data.data as LoginResult;
 }
+
+// 구글 소셜 로그인 (idToken은 앱의 Google Sign-In에서 발급받은 것)
+export async function googleLoginApi(idToken: string): Promise<LoginResult> {
+  const res = await apiClient.post('/users/oauth/google', { idToken });
+  return res.data.data as LoginResult;
+}

@@ -1,7 +1,9 @@
 import { useAuth } from '@/contexts/auth';
+import { isGoogleCancel, signInWithGoogle } from '@/native/googleAuth';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
 import { useAlert } from '@/ui/AlertProvider';
+import { GoogleSignInButton } from '@/ui/GoogleSignInButton';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -13,11 +15,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RegisterScreen() {
-  const { register } = useAuth();
+  const { register, loginWithGoogleToken } = useAuth();
   const { colors } = useTheme();
   const showAlert = useAlert();
   const styles = createStyles(colors);
@@ -25,6 +28,7 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
 
   const onSubmit = async () => {
     if (!nickname || !email || !password) {
@@ -47,6 +51,25 @@ export default function RegisterScreen() {
       showAlert('회원가입 실패', msg, undefined, { variant: 'danger' });
     } finally {
       setBusy(false);
+    }
+  };
+
+  // 구글 계정으로 가입 = 로그인과 동일 요청(신규면 백엔드가 자동 가입)
+  const onGoogleSignIn = async () => {
+    setGoogleBusy(true);
+    try {
+      const idToken = await signInWithGoogle();
+      if (!idToken) return; // 사용자가 취소함
+      await loginWithGoogleToken(idToken);
+      router.replace('/');
+    } catch (e) {
+      if (isGoogleCancel(e)) return;
+      const msg = axios.isAxiosError(e)
+        ? (e.response?.data?.message ?? 'Google 가입에 실패했습니다.')
+        : 'Google 가입에 실패했습니다.';
+      showAlert('가입 실패', msg, undefined, { variant: 'danger' });
+    } finally {
+      setGoogleBusy(false);
     }
   };
 
@@ -88,6 +111,14 @@ export default function RegisterScreen() {
           {busy ? <ActivityIndicator color={colors.accentText} /> : <Text style={styles.btnText}>회원가입</Text>}
         </TouchableOpacity>
 
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>또는</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <GoogleSignInButton onPress={onGoogleSignIn} busy={googleBusy} />
+
         <TouchableOpacity onPress={() => router.replace('/login')}>
           <Text style={styles.link}>이미 계정이 있으신가요? 로그인</Text>
         </TouchableOpacity>
@@ -118,6 +149,9 @@ function createStyles(c: ThemeColors) {
       marginTop: 6,
     },
     btnText: { color: c.accentText, fontSize: 16, fontWeight: 'bold' },
+    dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 4 },
+    dividerLine: { flex: 1, height: 1, backgroundColor: c.border },
+    dividerText: { color: c.textFaint, fontSize: 13 },
     link: { color: c.textMuted, textAlign: 'center', marginTop: 16, fontSize: 14 },
   });
 }
