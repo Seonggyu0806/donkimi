@@ -1,3 +1,5 @@
+import { removeBlockedNumberApi } from '@/api/blocklist';
+import { syncBlockedNumbers } from '@/lib/blocklistSync';
 import {
   callBlockAvailable,
   getBlockedNumbers,
@@ -34,9 +36,10 @@ export default function BlockListScreen() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, held] = await Promise.all([getBlockedNumbers(), isRoleHeld()]);
+      setRoleHeld(await isRoleHeld());
+      // 서버(계정) 목록과 기기 목록을 동기화. 오프라인 등으로 실패하면 기기 목록만 사용.
+      const list = await syncBlockedNumbers().catch(() => getBlockedNumbers());
       setNumbers(list);
-      setRoleHeld(held);
     } finally {
       setLoading(false);
     }
@@ -70,6 +73,18 @@ export default function BlockListScreen() {
         onPress: async () => {
           await removeBlockedNumber(number);
           setNumbers((prev) => prev.filter((n) => n !== number));
+          try {
+            await removeBlockedNumberApi(number);
+          } catch {
+            // 서버 삭제 실패 시 다음 동기화 때 계정 목록에 남아있던 번호가 기기로 다시 내려와
+            // 차단이 되살아날 수 있음 — 온라인 상태에서 다시 해제하도록 안내
+            showAlert(
+              '동기화 실패',
+              '기기에서는 차단이 해제됐지만 서버 반영에 실패했어요. 인터넷 연결 후 다시 해제해주세요.',
+              undefined,
+              { variant: 'warning' },
+            );
+          }
         },
       },
     ]);

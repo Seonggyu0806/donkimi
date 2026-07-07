@@ -1,3 +1,4 @@
+import { addBlockedNumberApi } from '@/api/blocklist';
 import { lookupNumber, reportNumber, type NumberLookupResult } from '@/api/number';
 import { RISK, RISK_TEXT } from '@/lib/risk';
 import { addBlockedNumber, callBlockAvailable, isRoleHeld, requestRole } from '@/native/callblock';
@@ -86,6 +87,8 @@ export default function PhoneScreen() {
       showAlert('차단 완료', '이제 이 번호로 걸려오는 전화는 자동으로 거절돼요. 🚫', undefined, {
         variant: 'success',
       });
+      // 계정에도 백업 (재설치/새 기기 복원용) — 실패해도 기기 차단 자체는 이미 완료된 상태
+      addBlockedNumberApi(number.trim()).catch(() => {});
     } catch {
       showAlert('차단 실패', '번호 차단 중 문제가 발생했습니다.', undefined, { variant: 'danger' });
     } finally {
