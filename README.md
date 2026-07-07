@@ -18,9 +18,11 @@
 | 🔗 URL 분석 | 의심스러운 링크의 피싱 위험도 판별 |
 | 🎙️ 음성 분석 (STT) | 통화 녹음을 텍스트로 변환 후 보이스피싱 패턴 분석 |
 | 🖼️ 이미지 분석 (OCR) | 캡처/문자 이미지에서 텍스트 추출 후 위험 분석 |
-| 📞 전화번호 조회 | 신고된 피싱 번호 데이터베이스 조회 |
-| 💬 AI 챗봇 상담 | 피싱 의심 상황을 대화로 진단 |
+| 📞 전화번호 조회 | 신고된 피싱 번호 데이터베이스 조회 · 신고하기 |
+| 💬 AI 챗봇 상담 | 피싱 의심 상황을 대화로 진단 (답변 마크다운 렌더링) |
 | 📊 대시보드 | 위험 통계 및 신고 랭킹 |
+| 🚫 통화 차단 (앱) | 안드로이드 네이티브 통화 스크리닝으로 지정 번호 자동 거절 (기기 로컬 + 계정 백업 동기화) |
+| 🔐 인증 | 이메일/비밀번호(JWT) · Google 소셜 로그인 · 회원 탈퇴 |
 
 위험도는 `riskScore`(0~100)로 산출되어 **안전 / 낮음 / 중간 / 주의 / 위험** 5단계로 표시됩니다.
 
@@ -28,17 +30,23 @@
 
 ## 🧱 기술 스택
 
-**프론트엔드**
+**프론트엔드 (웹)**
 - React 19 · TypeScript · Vite
 - TailwindCSS · React Router · TanStack Query · axios · zod
+
+**모바일 앱**
+- React Native (Expo, SDK 54) · expo-router
+- 안드로이드 네이티브 모듈(Kotlin): 통화 스크리닝(CallScreeningService)
+- `@react-native-google-signin` (구글 로그인)
 
 **백엔드**
 - Java 17 · Spring Boot 4.0 · Spring Data JPA
 - Spring Security · JWT · springdoc(OpenAPI/Swagger)
+- 외부 API: Google Safe Browsing · Google Vision(OCR) · OpenAI · Naver CLOVA STT
 
 **데이터베이스 / 인프라**
 - MySQL 8.0
-- (예정) Railway 배포
+- Railway(백엔드+DB) · Vercel(웹, `/api` 프록시) 배포 완료
 
 ---
 
@@ -54,11 +62,18 @@ donkimi/
 │       ├── repository/   # 데이터 접근
 │       ├── dto/          # 요청/응답 모델
 │       └── config/       # Security, JWT, Swagger
-└── frontend/    # React 웹 클라이언트
-    └── src/
-        ├── pages/        # 화면 (진단/챗봇/마이페이지/관리자)
-        ├── api/          # 백엔드 연동 (+ mock)
-        └── components/   # 공용 UI
+├── frontend/    # React 웹 클라이언트
+│   └── src/
+│       ├── pages/        # 화면 (진단/챗봇/마이페이지/관리자)
+│       ├── api/          # 백엔드 연동 (+ mock)
+│       └── components/   # 공용 UI
+└── app/         # React Native 모바일 앱 (Expo)
+    ├── src/
+    │   ├── app/          # expo-router 화면 (진단/챗봇/차단목록/탈퇴 ...)
+    │   ├── api/          # 백엔드 연동
+    │   ├── native/       # 네이티브 모듈 래퍼 (통화 차단, 구글 로그인)
+    │   └── ui/           # 공용 UI (알림창, RichText ...)
+    └── android/          # 네이티브 안드로이드 프로젝트 (Kotlin 통화 스크리닝)
 ```
 
 ---
@@ -103,10 +118,12 @@ npm run dev   # http://localhost:5173
 - [x] **M2** 프론트엔드 ↔ 백엔드 로컬 통합 (회원가입/로그인 실동작)
 - [x] **M3** Railway 클라우드 배포 (서버 + DB 라이브) → https://donkimi.up.railway.app
 - [x] **M4** 외부 분석 API 연동 — URL(Safe Browsing) · 이미지(Vision OCR) · 음성(Naver STT) · AI(OpenAI)
-- [ ] **M5** React Native 모바일 앱 전환
-- [ ] **M6** 앱 고유 기능(푸시 알림 등) + 마무리
+- [x] **M5** React Native 모바일 앱 전환 (핵심 기능 + 다듬기)
+- [x] **Phase B** 안드로이드 네이티브 통화 차단 (실기기 검증)
+- [x] **완성도** 구글 로그인 · 차단 번호 계정 동기화 · 회원 탈퇴 · 챗봇 마크다운 렌더링
+- [ ] **추가 검토** 통화 차단 실통화 최종검증 · (선택) 카카오 로그인
 
-📝 작업 과정 기록은 [위키](https://github.com/Seonggyu0806/donkimi/wiki)에서 확인하세요.
+📌 세부 작업 기록은 [위키 개발일지](https://github.com/Seonggyu0806/donkimi/wiki)에서 날짜별로 확인할 수 있습니다.
 
 ---
 
