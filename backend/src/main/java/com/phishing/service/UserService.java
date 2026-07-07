@@ -116,6 +116,7 @@ public class UserService {
         return new UserDto.MyInfoResponse(
                 user.getEmail(),
                 user.getNickname(),
+                user.getProvider(),
                 user.getCreatedAt()
         );
     }

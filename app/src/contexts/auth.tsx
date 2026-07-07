@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 import { setAuthToken, setUnauthorizedHandler } from '@/api/client';
 import { googleLoginApi, loginApi, registerApi, type LoginResult } from '@/api/auth';
-import { withdrawApi } from '@/api/user';
+import { getMyInfoApi, withdrawApi } from '@/api/user';
 import { signOutGoogle } from '@/native/googleAuth';
 import { useAlert } from '@/ui/AlertProvider';
 
@@ -41,7 +41,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userStr = await SecureStore.getItemAsync(USER_KEY);
         if (token && userStr) {
           setAuthToken(token);
-          setUser(JSON.parse(userStr));
+          const cached: User = JSON.parse(userStr);
+          setUser(cached);
+          // 구버전 캐시엔 provider가 없어 탈퇴 시 오동작할 수 있음 → 서버에서 최신화(백그라운드).
+          // 401이면 axios 인터셉터가 자동 로그아웃 처리하므로 여기선 조용히 무시.
+          refreshMe();
         }
       } catch {
         // 무시
@@ -49,7 +53,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 서버에서 내 정보를 다시 받아 세션(provider/닉네임 등)을 최신화
+  const refreshMe = async () => {
+    try {
+      const me = await getMyInfoApi();
+      const u = { email: me.email, nickname: me.nickname, provider: me.provider };
+      await SecureStore.setItemAsync(USER_KEY, JSON.stringify(u));
+      setUser(u);
+    } catch {
+      // 오프라인 등: 캐시 유지
+    }
+  };
 
   // 로그인 성공 응답을 세션에 저장 (이메일/구글 로그인 공통)
   const persistSession = async (result: LoginResult) => {
