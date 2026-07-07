@@ -1,13 +1,21 @@
 package com.phishing.service;
 
 import com.phishing.config.JwtUtil;
+import com.phishing.domain.ChatSession;
 import com.phishing.domain.User;
 import com.phishing.dto.UserDto;
+import com.phishing.repository.BlockedNumberRepository;
+import com.phishing.repository.ChatMessageRepository;
+import com.phishing.repository.ChatSessionRepository;
+import com.phishing.repository.PhoneReportLogRepository;
+import com.phishing.repository.UrlAnalysisRepository;
 import com.phishing.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service                        // 이 클래스가 Service 역할임을 표시
 // Spring이 자동으로 Bean으로 등록해줌
@@ -19,6 +27,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;  // 비밀번호 암호화용
     private final JwtUtil jwtUtil;  // JWT 토큰 생성용
     private final GoogleAuthService googleAuthService; // 구글 ID 토큰 검증용
+
+    // 탈퇴 시 연관 데이터 정리용
+    private final BlockedNumberRepository blockedNumberRepository;
+    private final PhoneReportLogRepository phoneReportLogRepository;
+    private final ChatSessionRepository chatSessionRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final UrlAnalysisRepository urlAnalysisRepository;
 
     // 회원가입
     public UserDto.JoinResponse join(UserDto.JoinRequest request) {
@@ -67,7 +82,7 @@ public class UserService {
         // JWT 토큰 생성
         String accessToken = jwtUtil.generateToken(user.getId(), "USER");
 
-        return new UserDto.LoginResponse(accessToken, user.getEmail(), user.getNickname());
+        return new UserDto.LoginResponse(accessToken, user.getEmail(), user.getNickname(), user.getProvider());
     }
 
     // 구글 소셜 로그인 (신규면 가입까지 자동 처리)
@@ -87,7 +102,7 @@ public class UserService {
                 ));
 
         String accessToken = jwtUtil.generateToken(user.getId(), "USER");
-        return new UserDto.LoginResponse(accessToken, user.getEmail(), user.getNickname());
+        return new UserDto.LoginResponse(accessToken, user.getEmail(), user.getNickname(), user.getProvider());
     }
 
     // 내 정보 조회
@@ -112,10 +127,28 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다"));
 
-        // 비밀번호 확인 (소셜 계정은 랜덤 비밀번호가 있어 이 경로로는 탈퇴 불가 — 별도 처리 필요시 추후 보완)
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 틀렸습니다");
+        // 비밀번호 확인. 소셜 계정은 추측 불가한 랜덤 비밀번호가 저장돼 있어 본인이 알 수 없으므로
+        // 확인을 생략한다 (이미 JWT 인증을 통과한 시점에서 본인 확인은 끝난 상태)
+        if ("LOCAL".equals(user.getProvider())) {
+            if (request.getPassword() == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                throw new IllegalArgumentException("비밀번호가 틀렸습니다");
+            }
         }
+
+        // 연관 데이터 정리. FK 제약이 걸린 것(차단 번호, 신고 로그)은 유저 삭제 전에 반드시 지워야
+        // DataIntegrityViolationException 없이 삭제된다. 채팅/분석 이력은 FK는 없지만
+        // 탈퇴 시 개인 데이터를 남기지 않기 위해 함께 정리한다.
+        blockedNumberRepository.deleteByUser(user);
+        phoneReportLogRepository.deleteByUser(user);
+
+        List<String> sessionIds = chatSessionRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(ChatSession::getSessionId)
+                .toList();
+        if (!sessionIds.isEmpty()) {
+            chatMessageRepository.deleteBySessionIdIn(sessionIds);
+        }
+        chatSessionRepository.deleteByUserId(userId);
+        urlAnalysisRepository.deleteByUserId(userId);
 
         userRepository.delete(user);    // DB에서 삭제
     }

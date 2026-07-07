@@ -38,12 +38,14 @@ public class UserDto {
         private String accessToken; // JWT 토큰
         private String email;       // 이메일
         private String nickname;    // 닉네임
+        private String provider;    // LOCAL | GOOGLE 등 (앱에서 탈퇴 시 비밀번호 입력 필요 여부 판단용)
 
-        public LoginResponse(String accessToken, String email, String nickname) {
+        public LoginResponse(String accessToken, String email, String nickname, String provider) {
             // 생성자 - 응답 객체 만들 때 사용
             this.accessToken = accessToken;
             this.email = email;
             this.nickname = nickname;
+            this.provider = provider;
         }
     }
 

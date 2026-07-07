@@ -81,6 +81,10 @@ export default function MypageTab() {
           <Ionicons name="log-out-outline" size={20} color={colors.danger} />
           <Text style={styles.logoutText}>로그아웃</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push('/withdraw')}>
+          <Text style={styles.withdrawText}>회원 탈퇴</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -140,5 +144,6 @@ function createStyles(c: ThemeColors) {
       paddingVertical: 14,
     },
     logoutText: { color: c.danger, fontSize: 16, fontWeight: '600' },
+    withdrawText: { color: c.textFaint, fontSize: 13, textAlign: 'center', marginTop: 4 },
   });
 }

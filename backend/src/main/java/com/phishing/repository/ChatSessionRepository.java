@@ -7,4 +7,7 @@ import java.util.List;
 public interface ChatSessionRepository extends JpaRepository<ChatSession, String> {
     // 특정 유저의 세션 목록을 최신순으로 가져옵니다.
     List<ChatSession> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    void deleteByUserId(Long userId);
+    // 회원 탈퇴 시 세션 전체 삭제
 }

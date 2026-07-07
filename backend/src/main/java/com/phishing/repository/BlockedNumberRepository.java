@@ -17,4 +17,7 @@ public interface BlockedNumberRepository extends JpaRepository<BlockedNumber, Lo
     boolean existsByUserAndPhoneNumber(User user, String phoneNumber);
 
     void deleteByUserAndPhoneNumber(User user, String phoneNumber);
+
+    void deleteByUser(User user);
+    // 회원 탈퇴 시 계정의 차단 번호 전체 삭제
 }

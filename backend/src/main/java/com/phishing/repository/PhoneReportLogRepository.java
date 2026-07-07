@@ -18,6 +18,9 @@ public interface PhoneReportLogRepository extends JpaRepository<PhoneReportLog, 
     // 특정 유저의 신고 이력 전체 조회
     // 내 신고 이력 API에서 사용
 
+    void deleteByUser(User user);
+    // 회원 탈퇴 시 신고 로그 삭제 (PhoneReport 집계 자체는 커뮤니티 데이터라 유지)
+
     @Query("SELECT p.phoneReport.phoneNumber, COUNT(p) as cnt " +
             "FROM PhoneReportLog p " +
             "WHERE p.createdAt >= :sevenDaysAgo " +

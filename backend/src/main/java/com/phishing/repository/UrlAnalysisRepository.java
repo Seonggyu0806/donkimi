@@ -11,4 +11,7 @@ public interface UrlAnalysisRepository extends JpaRepository<AnalysisHistory, Lo
 
     // 🌟 2. 추가된 마법의 코드: 특정 유저(userId)의 모든 분석 이력을 최신순으로 가져와라!
     List<AnalysisHistory> findByUserIdOrderByAnalyzedAtDesc(Long userId);
+
+    void deleteByUserId(Long userId);
+    // 회원 탈퇴 시 분석 이력 전체 삭제
 }

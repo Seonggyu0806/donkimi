@@ -4,6 +4,7 @@ export interface LoginResult {
   accessToken: string;
   email: string;
   nickname: string;
+  provider: string; // LOCAL | GOOGLE 등
 }
 
 // 회원가입 (성공 시 { success, message, data } 반환)
