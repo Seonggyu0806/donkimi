@@ -47,6 +47,8 @@ export function BannerCarousel({
         onMomentumScrollEnd={(e) => {
           if (width > 0) setIndex(Math.round(e.nativeEvent.contentOffset.x / width));
         }}
+        // 모든 슬라이드가 가장 높은 슬라이드에 맞춰 늘어나도록(내용이 짧은 배너도 같은 높이)
+        contentContainerStyle={{ alignItems: 'stretch' }}
       >
         {children.map((child, i) => (
           <View key={i} style={{ width }}>

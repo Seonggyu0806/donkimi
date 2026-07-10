@@ -5,8 +5,8 @@ import { getBlockedNumbers } from '@/native/callblock';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
 import { BannerCarousel } from '@/ui/BannerCarousel';
-import { RiskGauge } from '@/ui/RiskGauge';
 import { StatBars } from '@/ui/StatBars';
+import { TipRotator } from '@/ui/TipRotator';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -23,6 +23,13 @@ const TYPE_LABEL: Record<string, string> = {
   VOICE: '음성',
   PHONE: '전화번호',
 };
+
+// 위험도 5단계 설명은 진단 탭에서 하므로, 홈에는 알아두면 좋은 안내만 번갈아 띄운다.
+const TIPS = [
+  '연락처에 저장된 번호는 안드로이드 정책상 차단되지 않습니다.',
+  '이미지·음성 파일은 한 번에 합쳐서 10MB까지 올릴 수 있어요.',
+  '통화 차단을 쓰려면 돈킴이를 통화 스크리닝 앱으로 지정해야 해요.',
+];
 
 type TypeCount = Record<string, number>;
 const emptyCounts = (): TypeCount => ({ URL: 0, IMAGE: 0, VOICE: 0, PHONE: 0 });
@@ -200,11 +207,7 @@ export default function HomeTab() {
           <MyStatsBanner styles={styles} colors={colors} counts={myCounts} blockedCount={blockedCount} />
         </BannerCarousel>
 
-        <RiskGauge
-          style={styles.gauge}
-          title="위험도는 이렇게 표시돼요"
-          caption="진단이 끝나면 위 5단계 중 하나로 결과를 알려드려요. 주의·위험이면 링크를 누르거나 연락에 응하지 마세요."
-        />
+        <TipRotator tips={TIPS} style={styles.tips} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -213,7 +216,8 @@ export default function HomeTab() {
 function createStyles(c: ThemeColors) {
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: c.background },
-    content: { padding: 24, gap: 6, alignItems: 'stretch' },
+    // 상단이 허전하지 않도록 방패 로고부터 아래로 여유를 준다
+    content: { paddingHorizontal: 24, paddingTop: 56, paddingBottom: 24, gap: 6, alignItems: 'stretch' },
     heroWrap: {
       alignSelf: 'center',
       width: 96,
@@ -239,9 +243,13 @@ function createStyles(c: ThemeColors) {
     logo: { fontSize: 26, fontWeight: 'bold', color: c.text, textAlign: 'center' },
     greeting: { fontSize: 18, color: c.textSecondary, marginTop: 10, textAlign: 'center' },
 
-    carousel: { marginTop: 24 },
-    // 세 배너의 내용 길이가 달라도 캐러셀 높이가 튀지 않도록 최소 높이를 맞춘다
+    // 위험도 계기판이 빠진 만큼 배너를 아래로 내려 화면 가운데에 오게 한다
+    // (상단 padding이 늘어난 만큼 여기서는 조금 줄임)
+    carousel: { marginTop: 36 },
+    // 캐러셀 슬롯은 가장 높은 배너에 맞춰 늘어난다. flex:1로 슬롯을 채워
+    // 내용이 짧은 배너(진단 CTA)도 통계 배너와 같은 높이가 되게 한다.
     banner: {
+      flex: 1,
       backgroundColor: c.accent,
       borderRadius: 20,
       padding: 22,
@@ -278,6 +286,6 @@ function createStyles(c: ThemeColors) {
     statFootInline: { color: 'rgba(255,255,255,0.85)', fontSize: 12 },
     blockedRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12 },
 
-    gauge: { marginTop: 20 },
+    tips: { marginTop: 28 },
   });
 }

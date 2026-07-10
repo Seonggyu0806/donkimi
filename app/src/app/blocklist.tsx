@@ -1,5 +1,6 @@
 import { removeBlockedNumberApi } from '@/api/blocklist';
 import { syncBlockedNumbers } from '@/lib/blocklistSync';
+import { formatPhone } from '@/lib/phone';
 import {
   callBlockAvailable,
   getBlockedNumbers,
@@ -65,7 +66,8 @@ export default function BlockListScreen() {
   };
 
   const onRemove = (number: string) => {
-    showAlert('차단 해제', `${number} 번호의 차단을 해제할까요?`, [
+    // 저장은 숫자만(정규화된) 형태이므로, 보여줄 때만 하이픈을 붙인다
+    showAlert('차단 해제', `${formatPhone(number)} 번호의 차단을 해제할까요?`, [
       { text: '취소', style: 'cancel' },
       {
         text: '해제',
@@ -144,7 +146,7 @@ export default function BlockListScreen() {
             renderItem={({ item }) => (
               <View style={styles.item}>
                 <Ionicons name="call-outline" size={18} color={colors.textMuted} />
-                <Text style={styles.itemText}>{item}</Text>
+                <Text style={styles.itemText}>{formatPhone(item)}</Text>
                 <TouchableOpacity onPress={() => onRemove(item)}>
                   <Text style={styles.removeText}>해제</Text>
                 </TouchableOpacity>
