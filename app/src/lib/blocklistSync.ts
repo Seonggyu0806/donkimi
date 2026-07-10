@@ -13,10 +13,14 @@ export async function syncBlockedNumbers(): Promise<string[]> {
   const onlyOnServer = server.filter((n) => !localSet.has(n));
   const onlyOnDevice = local.filter((n) => !serverSet.has(n));
 
-  await Promise.all([
-    ...onlyOnServer.map((n) => addBlockedNumber(n)),
-    ...onlyOnDevice.map((n) => addBlockedNumberApi(n)),
-  ]);
+  // 기기 저장소(SharedPreferences)는 읽기→수정→쓰기라 동시에 호출하면 서로를 덮어써
+  // 마지막 하나만 남는다. 반드시 순차로 추가할 것.
+  for (const n of onlyOnServer) {
+    await addBlockedNumber(n);
+  }
+
+  // 서버는 번호마다 독립 요청이라 병렬로 보내도 안전
+  await Promise.all(onlyOnDevice.map((n) => addBlockedNumberApi(n)));
 
   return onlyOnServer.length > 0 ? await getBlockedNumbers() : local;
 }
