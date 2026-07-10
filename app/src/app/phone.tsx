@@ -84,9 +84,13 @@ export default function PhoneScreen() {
       }
       await addBlockedNumber(number.trim());
       setBlocked(true);
-      showAlert('차단 완료', '이제 이 번호로 걸려오는 전화는 자동으로 거절돼요. 🚫', undefined, {
-        variant: 'success',
-      });
+      showAlert(
+        '차단 완료',
+        '이제 이 번호로 걸려오는 전화는 자동으로 거절돼요. 🚫\n\n' +
+          '단, 연락처에 저장된 번호는 안드로이드 정책상 차단되지 않습니다.',
+        undefined,
+        { variant: 'success' },
+      );
       // 계정에도 백업 (재설치/새 기기 복원용) — 실패해도 기기 차단 자체는 이미 완료된 상태
       addBlockedNumberApi(number.trim()).catch(() => {});
     } catch {

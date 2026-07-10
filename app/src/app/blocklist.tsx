@@ -129,6 +129,13 @@ export default function BlockListScreen() {
             </View>
           )}
 
+          <View style={styles.noticeRow}>
+            <Ionicons name="information-circle-outline" size={16} color={colors.textFaint} />
+            <Text style={styles.noticeText}>
+              연락처에 저장된 번호는 안드로이드 정책상 차단되지 않습니다.
+            </Text>
+          </View>
+
           <FlatList
             data={numbers}
             keyExtractor={(item) => item}
@@ -164,6 +171,14 @@ function createStyles(c: ThemeColors) {
     title: { color: c.text, fontSize: 18, fontWeight: 'bold' },
     center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
     empty: { color: c.textFaint, textAlign: 'center', marginTop: 40, fontSize: 15, paddingHorizontal: 24 },
+    noticeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginHorizontal: 16,
+      marginBottom: 4,
+    },
+    noticeText: { flex: 1, color: c.textFaint, fontSize: 12, lineHeight: 17 },
     roleCard: {
       marginHorizontal: 16,
       marginBottom: 8,
