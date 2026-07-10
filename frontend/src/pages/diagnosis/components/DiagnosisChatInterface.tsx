@@ -3,6 +3,7 @@ import { Send, Loader2, RefreshCw, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { sendChat } from '@/api/chat'
 import logoSvg from '@/assets/logo.png'
 import RiskBadge from '@/components/common/RiskBadge'
+import RichText from '@/components/common/RichText'
 import type { RiskLevel } from '@/types/api'
 import type { UIMessage } from '@/types/chat'
 import { cn } from '@/lib/utils'
@@ -151,7 +152,7 @@ export default function DiagnosisChatInterface({
                     <RiskBadge level={msg.riskLevel} size="sm" />
                   </div>
                 )}
-                {msg.content}
+                {msg.role === 'assistant' ? <RichText content={msg.content} /> : msg.content}
               </div>
               {/* AI 메시지 평가 버튼 — 서버 chatMessageId가 있을 때만 표시 */}
               {msg.role === 'assistant' && msg.chatMessageId !== undefined && (

@@ -3,6 +3,7 @@ import { RISK, RISK_TEXT } from '@/lib/risk';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
 import { useAlert } from '@/ui/AlertProvider';
+import { RichText } from '@/ui/RichText';
 import axios from 'axios';
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
@@ -101,7 +102,7 @@ export default function VoiceScreen() {
             <Text style={styles.detail}>{result.convertedText}</Text>
             <View style={styles.divider} />
             <Text style={styles.detailLabel}>AI 분석</Text>
-            <Text style={styles.detail}>{result.message}</Text>
+            <RichText style={styles.detail}>{result.message}</RichText>
             <TouchableOpacity
               style={styles.chatBtn}
               onPress={() =>

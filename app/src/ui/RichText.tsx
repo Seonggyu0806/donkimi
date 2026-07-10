@@ -66,9 +66,18 @@ function parseInline(text: string, keyBase: string, c: InlineColors): ReactNode[
   return nodes;
 }
 
-export function RichText({ children, style }: { children: string; style?: TextStyle | TextStyle[] }) {
+export function RichText({
+  children,
+  style,
+}: {
+  children: string | null | undefined;
+  style?: TextStyle | TextStyle[];
+}) {
   const { colors } = useTheme();
   const inlineColors: InlineColors = { code: colors.text, codeBg: colors.border, link: colors.accent };
+
+  // AI 분석 실패 시 서버가 null을 내려줄 수 있어 방어
+  if (!children) return null;
 
   const lines = children.split('\n');
   const rendered: ReactNode[] = [];

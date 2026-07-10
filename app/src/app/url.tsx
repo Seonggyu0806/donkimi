@@ -3,6 +3,7 @@ import { RISK, RISK_TEXT } from '@/lib/risk';
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
 import { useAlert } from '@/ui/AlertProvider';
+import { RichText } from '@/ui/RichText';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -78,10 +79,10 @@ export default function UrlScreen() {
               </Text>
             </View>
             <Text style={styles.resultType}>유형: {result.phishingType}</Text>
-            <Text style={styles.resultRec}>{result.recommendation}</Text>
+            <RichText style={styles.resultRec}>{result.recommendation}</RichText>
             <View style={styles.divider} />
             <Text style={styles.resultDetailLabel}>AI 분석</Text>
-            <Text style={styles.resultDetail}>{result.detectedKeywords}</Text>
+            <RichText style={styles.resultDetail}>{result.detectedKeywords}</RichText>
             <TouchableOpacity
               style={styles.chatBtn}
               onPress={() =>
