@@ -1,5 +1,6 @@
 import { addBlockedNumberApi } from '@/api/blocklist';
 import { lookupNumber, reportNumber, type NumberLookupResult } from '@/api/number';
+import { formatPhone } from '@/lib/phone';
 import { RISK, RISK_TEXT } from '@/lib/risk';
 import { addBlockedNumber, callBlockAvailable, isRoleHeld, requestRole } from '@/native/callblock';
 import { useTheme } from '@/theme/ThemeContext';
@@ -139,8 +140,9 @@ export default function PhoneScreen() {
           placeholder="010-1234-5678"
           placeholderTextColor={colors.textFaint}
           keyboardType="phone-pad"
+          maxLength={13}
           value={number}
-          onChangeText={setNumber}
+          onChangeText={(t) => setNumber(formatPhone(t))}
         />
         <TouchableOpacity style={styles.btn} onPress={onLookup} disabled={busy}>
           {busy ? <ActivityIndicator color={colors.accentText} /> : <Text style={styles.btnText}>조회하기</Text>}
