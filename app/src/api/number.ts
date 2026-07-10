@@ -32,3 +32,16 @@ export async function reportNumber(number: string, phishingType?: string): Promi
   const res = await apiClient.post('/reports/phone', body);
   return res.data.data as NumberReportResult;
 }
+
+export interface MyReportItem {
+  phoneNumber: string;
+  reportCount: number;
+  riskLevel: string;
+  createdAt: string;
+}
+
+// 내가 신고한 전화번호 이력 (GET /reports/my)
+export async function getMyReports(): Promise<MyReportItem[]> {
+  const res = await apiClient.get('/reports/my');
+  return (res.data.data ?? []) as MyReportItem[];
+}

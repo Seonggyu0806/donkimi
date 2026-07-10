@@ -2,6 +2,7 @@ package com.phishing.service;
 
 import com.phishing.domain.AnalysisHistory;
 import com.phishing.dto.AnalysisHistoryResponseDto;
+import com.phishing.repository.PhoneReportLogRepository;
 import com.phishing.repository.UrlAnalysisRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class UrlAnalysisService {
     private final OpenAiService openAiService;
     private final UrlAnalysisRepository urlAnalysisRepository;
     private final GoogleSafeBrowsingService googleSafeBrowsingService;
+    private final PhoneReportLogRepository phoneReportLogRepository; // 홈 통계의 전화번호 신고 건수용
 
     // 1. [기존 기능 수정] URL 분석 및 DB 저장 (하이브리드 탐지)
     // 💡 변경점: 이제 누가(userId) 검사했는지 파라미터로 받아야 합니다.
@@ -225,6 +227,34 @@ public class UrlAnalysisService {
         stats.put("helpfulCount", helpfulCount);
         stats.put("satisfactionRate", totalCount > 0 ? (double) helpfulCount / totalCount * 100 : 0);
 
+        return stats;
+    }
+
+    // 5. 전체 사용자의 분야별 집계 (홈 화면 통계 배너)
+    // 전화번호 조회는 분석 이력에 저장되지 않으므로, PHONE은 "신고 건수"를 대신 집계한다.
+    public Map<String, Object> getTypeStats() {
+        // 아직 한 건도 없는 종류도 0으로 내려줘야 그래프가 자리를 유지한다
+        Map<String, Long> byType = new java.util.LinkedHashMap<>();
+        byType.put("URL", 0L);
+        byType.put("IMAGE", 0L);
+        byType.put("VOICE", 0L);
+
+        for (Object[] row : urlAnalysisRepository.countGroupByType()) {
+            String type = ((String) row[0]).toUpperCase();
+            long count = (Long) row[1];
+            if (byType.containsKey(type)) {
+                byType.put(type, byType.get(type) + count);
+            }
+        }
+
+        // PHONE은 분석 이력이 아니라 신고 로그에서 가져오므로 위 루프와 겹치지 않는다
+        byType.put("PHONE", phoneReportLogRepository.count());
+
+        long total = byType.values().stream().mapToLong(Long::longValue).sum();
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("total", total);
+        stats.put("byType", byType);
         return stats;
     }
 }

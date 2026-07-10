@@ -1,5 +1,6 @@
 import { useTheme } from '@/theme/ThemeContext';
 import type { ThemeColors } from '@/theme/colors';
+import { RiskGauge } from '@/ui/RiskGauge';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -47,6 +48,12 @@ export default function DiagnoseTab() {
         <Text style={styles.title}>피싱 진단</Text>
         <Text style={styles.sub}>진단할 유형을 선택하세요</Text>
 
+        <RiskGauge
+          style={styles.scale}
+          title="진단 결과는 5단계로 나와요"
+          caption="위험도 점수(0~100)를 기준으로 안전부터 위험까지 표시됩니다. 주의·위험 단계면 연락에 응하지 마세요."
+        />
+
         <View style={styles.list}>
           <DiagnoseRow styles={styles} colors={colors} icon="link-outline" label="URL 진단" desc="의심스러운 링크의 위험도 분석" onPress={() => router.push('/url')} />
           <DiagnoseRow styles={styles} colors={colors} icon="image-outline" label="이미지 진단" desc="스미싱 문자 캡처에서 글자 추출·분석" onPress={() => router.push('/image')} />
@@ -64,6 +71,7 @@ function createStyles(c: ThemeColors) {
     content: { padding: 24, gap: 6 },
     title: { fontSize: 26, fontWeight: 'bold', color: c.text },
     sub: { fontSize: 14, color: c.textMuted, marginBottom: 16 },
+    scale: { marginBottom: 20 },
     list: { gap: 12 },
     row: {
       flexDirection: 'row',

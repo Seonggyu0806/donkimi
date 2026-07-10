@@ -8,6 +8,9 @@ export const RISK: Record<string, { color: string; label: string }> = {
   CRITICAL: { color: '#F04452', label: '위험' },
 };
 
+// 낮은 위험 → 높은 위험 순서. 범례를 그릴 때 객체 키 순서에 의존하지 않도록 명시.
+export const RISK_ORDER = ['SAFE', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
+
 // 위험도 뱃지는 배경색이 테마와 무관하게 고정돼 있으므로, 뱃지 위 텍스트도 테마 색과 분리된 고정값을 쓴다.
 // (accentText는 테마별로 흰색/어두운색이 바뀔 수 있어 뱃지 배경(초록~빨강)과 대비가 깨질 수 있음)
 export const RISK_TEXT = '#171B21';

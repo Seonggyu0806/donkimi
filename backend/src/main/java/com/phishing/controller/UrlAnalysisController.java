@@ -56,6 +56,16 @@ public class UrlAnalysisController {
         return ResponseEntity.ok(urlAnalysisService.getEvaluationStats());
     }
 
+    // 3-1. 전체 사용자의 분석 종류별 진단 건수 (홈 화면 통계 배너)
+    @GetMapping("/analysis/stats")
+    public ResponseEntity<Map<String, Object>> getTypeStats() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "성공했습니다");
+        response.put("data", urlAnalysisService.getTypeStats());
+        return ResponseEntity.ok(response);
+    }
+
     // 🌟 프론트엔드가 요청한 통합 이력 조회 API (본게임!)
     @GetMapping("/analysis/history")
     public ResponseEntity<Map<String, Object>> getHistory(Authentication authentication) {

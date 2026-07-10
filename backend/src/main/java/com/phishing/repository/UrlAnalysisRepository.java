@@ -2,6 +2,7 @@ package com.phishing.repository;
 
 import com.phishing.domain.AnalysisHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface UrlAnalysisRepository extends JpaRepository<AnalysisHistory, Long> {
@@ -14,4 +15,8 @@ public interface UrlAnalysisRepository extends JpaRepository<AnalysisHistory, Lo
 
     void deleteByUserId(Long userId);
     // 회원 탈퇴 시 분석 이력 전체 삭제
+
+    @Query("SELECT a.type, COUNT(a) FROM AnalysisHistory a WHERE a.type IS NOT NULL GROUP BY a.type")
+    List<Object[]> countGroupByType();
+    // 전체 사용자의 분석 종류별 진단 건수 (홈 화면 통계 배너)
 }

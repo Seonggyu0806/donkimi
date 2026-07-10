@@ -54,6 +54,18 @@ export async function getAnalysisHistory(): Promise<AnalysisHistoryItem[]> {
   return (res.data.data ?? []) as AnalysisHistoryItem[];
 }
 
+// 전체 사용자의 분석 종류별 진단 건수 (GET /analysis/stats)
+// 전화번호 조회는 분석 이력에 저장되지 않아 포함되지 않는다.
+export interface TypeStats {
+  total: number;
+  byType: Record<string, number>; // { URL: n, IMAGE: n, VOICE: n }
+}
+
+export async function getGlobalStats(): Promise<TypeStats> {
+  const res = await apiClient.get('/analysis/stats');
+  return res.data.data as TypeStats;
+}
+
 export interface VoiceAnalysisResult {
   convertedText: string; // STT로 변환된 텍스트
   riskLevel: string;
