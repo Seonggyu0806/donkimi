@@ -17,15 +17,15 @@
 <table>
   <tr>
     <td align="center"><img src="docs/screenshots/01-home-cta.jpg" width="200"/><br/><sub>홈 · 배너 캐러셀</sub></td>
-    <td align="center"><img src="docs/screenshots/04-diagnose-gauge.jpg" width="200"/><br/><sub>진단 · 위험도 계기판</sub></td>
-    <td align="center"><img src="docs/screenshots/05-url-result.jpg" width="200"/><br/><sub>URL 진단 결과</sub></td>
-    <td align="center"><img src="docs/screenshots/07-chat-answer.jpg" width="200"/><br/><sub>AI 챗봇 상담</sub></td>
+    <td align="center"><img src="docs/screenshots/02-home-stats-global.jpg" width="200"/><br/><sub>진단 · 위험도 계기판</sub></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/ccd14cc8-836d-4f00-9511-9a13a387db1f" width="200"/><br/><sub>URL 진단 결과</sub></td>
+    <td align="center"><img src="docs/screenshots/05-url-result.jpg" width="200"/><br/><sub>AI 챗봇 상담</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/09-phone-lookup.jpg" width="200"/><br/><sub>전화번호 조회 · 신고</sub></td>
-    <td align="center"><img src="docs/screenshots/08-phone-blocked-modal.jpg" width="200"/><br/><sub>통화 차단</sub></td>
-    <td align="center"><img src="docs/screenshots/10-blocklist.jpg" width="200"/><br/><sub>차단 번호 관리</sub></td>
-    <td align="center"><img src="docs/screenshots/02-home-stats-global.jpg" width="200"/><br/><sub>전체 사용자 통계</sub></td>
+    <td align="center"><img src="docs/screenshots/07-chat-answer.jpg" width="200"/><br/><sub>통화 차단</sub></td>
+    <td align="center"><img src="docs/screenshots/08-phone-blocked-modal.jpg" width="200"/><br/><sub>차단 번호 관리</sub></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/1da260fb-c6fb-44fb-8509-dadb00f8c042" width="200"/><br/><sub>전체 사용자 통계</sub></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/a55c9afc-ec92-4b58-b2e6-4dbcec627951" width="200"/><br/><sub>내 활동 통계</sub></td>
   </tr>
 </table>
 
