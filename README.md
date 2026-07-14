@@ -5,9 +5,10 @@
 원래 4인 팀(team5) 프로젝트로 시작했고, 현재 **혼자서 서버 배포 · DB 운영 · 모바일 앱 전환**까지 발전시키는 솔로 개발 버전입니다.
 
 🌐 **라이브 웹앱:** https://donkimi.vercel.app
-🔌 **라이브 API (Swagger):** https://donkimi.up.railway.app/swagger-ui/index.html
+🔌 **라이브 API (Swagger):** https://donkimi-backend.onrender.com/swagger-ui/index.html
 
-> 프론트(Vercel) → `/api` 프록시 → 백엔드(Railway) → MySQL 까지 전체 배포 완료.
+> 프론트(Vercel) → `/api` 프록시 → 백엔드(Render) → TiDB Serverless(MySQL 호환) 까지 전체 배포 완료.
+> 전액 무료 스택으로 운영합니다. (백엔드는 무료 티어 특성상 유휴 후 첫 요청에 콜드스타트가 있을 수 있습니다.)
 
 ---
 
@@ -45,8 +46,8 @@
 - 외부 API: Google Safe Browsing · Google Vision(OCR) · OpenAI · Naver CLOVA STT
 
 **데이터베이스 / 인프라**
-- MySQL 8.0
-- Railway(백엔드+DB) · Vercel(웹, `/api` 프록시) 배포 완료
+- TiDB Serverless (MySQL 호환, 무료) · 로컬 개발은 MySQL 8.0
+- Render(백엔드, Docker) · Vercel(웹, `/api` 프록시) — 전액 무료 스택
 
 ---
 
@@ -116,12 +117,14 @@ npm run dev   # http://localhost:5173
 - [x] **M0** 개발 환경 + 독립 레포 구성
 - [x] **M1** 백엔드 로컬 구동 + MySQL 연동 (API 25개 동작)
 - [x] **M2** 프론트엔드 ↔ 백엔드 로컬 통합 (회원가입/로그인 실동작)
-- [x] **M3** Railway 클라우드 배포 (서버 + DB 라이브) → https://donkimi.up.railway.app
+- [x] **M3** 클라우드 배포 (서버 + DB 라이브)
 - [x] **M4** 외부 분석 API 연동 — URL(Safe Browsing) · 이미지(Vision OCR) · 음성(Naver STT) · AI(OpenAI)
 - [x] **M5** React Native 모바일 앱 전환 (핵심 기능 + 다듬기)
-- [x] **Phase B** 안드로이드 네이티브 통화 차단 (실기기 검증)
+- [x] **Phase B** 안드로이드 네이티브 통화 차단 (실기기 실통화 검증 완료)
 - [x] **완성도** 구글 로그인 · 차단 번호 계정 동기화 · 회원 탈퇴 · 챗봇 마크다운 렌더링
-- [ ] **추가 검토** 통화 차단 실통화 최종검증 · (선택) 카카오 로그인
+- [x] **홈 개편** 배너 캐러셀(자동 전환) · 위험도 계기판 · 전체/개인 통계
+- [x] **인프라 이전** Railway → Render + TiDB Serverless (전액 무료 스택)
+- [ ] **추가 검토** (선택) 카카오 로그인
 
 📌 세부 작업 기록은 [위키 개발일지](https://github.com/Seonggyu0806/donkimi/wiki)에서 날짜별로 확인할 수 있습니다.
 
