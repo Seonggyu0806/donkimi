@@ -1,0 +1,14 @@
+# ============================================================
+#  배포용 설정 (application-prod.yml)
+#  - SPRING_PROFILES_ACTIVE=prod 일 때 application.yaml 위에 덮어씀
+#  - DB 접속(datasource)은 환경변수로 주입:
+#      SPRING_DATASOURCE_URL / SPRING_DATASOURCE_USERNAME / SPRING_DATASOURCE_PASSWORD
+#    (예: TiDB Serverless — jdbc:mysql://<host>:4000/donkimi?sslMode=VERIFY_IDENTITY)
+# ============================================================
+spring:
+  datasource:
+    hikari:
+      # 무료 티어 메모리와 TiDB Serverless 커넥션 한도를 아끼기 위해 풀을 작게 둔다
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 10000

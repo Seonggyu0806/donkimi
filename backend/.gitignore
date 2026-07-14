@@ -39,6 +39,7 @@ out/
 .vscode/
 
 ### Custom ###
+# local은 MySQL 비번 등 비밀값이 있어 제외.
+# prod는 비밀값 없이 환경변수만 참조하므로 커밋함(Docker 빌드 시 jar에 포함돼야 함).
 application-local.yml
-application-prod.yml
 build/

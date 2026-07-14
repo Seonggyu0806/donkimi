@@ -18,13 +18,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
-# Railway가 주입하는 PORT 환경변수를 Spring이 사용 (application.yaml: ${PORT:8080})
+# 호스트(Render 등)가 주입하는 PORT 환경변수를 Spring이 사용 (application.yaml: ${PORT:8080})
 #
-# 컨테이너 메모리 비용 절감 설정:
-#  - MaxRAMPercentage=75  : 컨테이너에 걸린 메모리 제한을 JVM이 인식해 그 75%만 힙으로 사용
-#                           (기본값은 호스트 전체를 보거나 지나치게 보수적이라 실사용/청구가 커짐)
-#  - UseSerialGC          : 1 vCPU·소형 힙 환경에 적합. G1 대비 백그라운드 GC 스레드가 없어
-#                           상시 메모리 오버헤드가 작음
-#  - MaxMetaspaceSize=192m: 메타스페이스 상한을 둬서 예기치 않게 증가하는 것을 방지
-# ⚠️ Railway 대시보드에서 서비스 메모리 제한(512MB 권장)을 설정해야 위 percentage가 의미를 가짐.
-ENTRYPOINT ["java", "-XX:+UseSerialGC", "-XX:MaxRAMPercentage=75.0", "-XX:MaxMetaspaceSize=192m", "-jar", "/app/app.jar"]
+# 무료 티어(Render 512MB)에 맞춘 보수적 JVM 메모리 설정:
+#  - MaxRAMPercentage=60  : 컨테이너 메모리(512MB)의 60%(~307MB)만 힙으로 사용.
+#                           메타스페이스·스레드 스택·네이티브 오버헤드까지 512MB 안에 들어오게 함
+#  - UseSerialGC          : 1 vCPU·소형 힙에 적합. G1 대비 백그라운드 GC 스레드가 없어 오버헤드 작음
+#  - MaxMetaspaceSize=128m: 메타스페이스 상한
+# ⚠️ 512MB는 이 앱에 빠듯할 수 있음. 기동 중 OOM이 나면 percentage를 더 낮추거나
+#    application-prod.yml에 spring.main.lazy-initialization=true 를 추가할 것.
+ENTRYPOINT ["java", "-XX:+UseSerialGC", "-XX:MaxRAMPercentage=60.0", "-XX:MaxMetaspaceSize=128m", "-jar", "/app/app.jar"]

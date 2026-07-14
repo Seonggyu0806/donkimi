@@ -1,0 +1,40 @@
+# ============================================================
+#  Render Blueprint — 돈킴이 백엔드 (무료 티어)
+#  사용법: Render 대시보드 → New → Blueprint → 이 리포 연결
+#  DB(datasource)·API 키는 sync:false 라 대시보드에서 직접 입력한다(깃에 안 올라감).
+#  DB는 TiDB Serverless(MySQL 호환, 무료) 사용을 권장.
+# ============================================================
+services:
+  - type: web
+    name: donkimi-backend
+    runtime: docker
+    plan: free
+    region: singapore # 한국에서 가장 가까운 무료 리전
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: / # 정적 index.html(인증 불필요, 200)로 기동 확인
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JWT_SECRET
+        generateValue: true # Render가 안전한 랜덤값 자동 생성
+      # --- DB 접속: TiDB 등에서 발급받아 대시보드에 입력 ---
+      - key: SPRING_DATASOURCE_URL
+        sync: false # 예: jdbc:mysql://<host>:4000/donkimi?sslMode=VERIFY_IDENTITY&enabledTLSProtocols=TLSv1.2,TLSv1.3
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      # --- 외부 API 키 (대시보드에 입력) ---
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_SAFEBROWSING_API_KEY
+        sync: false
+      - key: GOOGLE_VISION_API_KEY
+        sync: false
+      - key: NAVER_STT_CLIENT_ID
+        sync: false
+      - key: NAVER_STT_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_OAUTH_WEB_CLIENT_ID
+        sync: false
