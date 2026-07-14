@@ -12,6 +12,25 @@
 
 ---
 
+## 📱 스크린샷
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/01-home-cta.jpg" width="200"/><br/><sub>홈 · 배너 캐러셀</sub></td>
+    <td align="center"><img src="docs/screenshots/04-diagnose-gauge.jpg" width="200"/><br/><sub>진단 · 위험도 계기판</sub></td>
+    <td align="center"><img src="docs/screenshots/05-url-result.jpg" width="200"/><br/><sub>URL 진단 결과</sub></td>
+    <td align="center"><img src="docs/screenshots/07-chat-answer.jpg" width="200"/><br/><sub>AI 챗봇 상담</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/09-phone-lookup.jpg" width="200"/><br/><sub>전화번호 조회 · 신고</sub></td>
+    <td align="center"><img src="docs/screenshots/08-phone-blocked-modal.jpg" width="200"/><br/><sub>통화 차단</sub></td>
+    <td align="center"><img src="docs/screenshots/10-blocklist.jpg" width="200"/><br/><sub>차단 번호 관리</sub></td>
+    <td align="center"><img src="docs/screenshots/02-home-stats-global.jpg" width="200"/><br/><sub>전체 사용자 통계</sub></td>
+  </tr>
+</table>
+
+---
+
 ## ✨ 주요 기능
 
 | 기능 | 설명 |
@@ -22,7 +41,7 @@
 | 📞 전화번호 조회 | 신고된 피싱 번호 데이터베이스 조회 · 신고하기 |
 | 💬 AI 챗봇 상담 | 피싱 의심 상황을 대화로 진단 (답변 마크다운 렌더링) |
 | 📊 대시보드 | 위험 통계 및 신고 랭킹 |
-| 🚫 통화 차단 (앱) | 안드로이드 네이티브 통화 스크리닝으로 지정 번호 자동 거절 (기기 로컬 + 계정 백업 동기화) |
+| 🚫 통화 차단 (앱) | 안드로이드 네이티브 통화 스크리닝으로 지정 번호 자동 거절 (계정 종속 — 로그인 계정별 차단 목록) |
 | 🔐 인증 | 이메일/비밀번호(JWT) · Google 소셜 로그인 · 회원 탈퇴 |
 
 위험도는 `riskScore`(0~100)로 산출되어 **안전 / 낮음 / 중간 / 주의 / 위험** 5단계로 표시됩니다.
