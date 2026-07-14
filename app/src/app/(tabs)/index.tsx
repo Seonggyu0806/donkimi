@@ -8,8 +8,8 @@ import { BannerCarousel } from '@/ui/BannerCarousel';
 import { StatBars } from '@/ui/StatBars';
 import { TipRotator } from '@/ui/TipRotator';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -161,37 +161,40 @@ export default function HomeTab() {
   const [myCounts, setMyCounts] = useState<TypeCount>(emptyCounts);
   const [blockedCount, setBlockedCount] = useState(0);
 
-  // 통계는 부가 정보라 실패해도 화면을 막지 않고 0으로 둔다
-  useEffect(() => {
-    (async () => {
-      try {
-        const stats = await getGlobalStats();
-        setGlobalCounts({ ...emptyCounts(), ...stats.byType });
-        setGlobalTotal(stats.total);
-      } catch {
-        // 무시
-      }
-
-      try {
-        const [history, myReports] = await Promise.all([getAnalysisHistory(), getMyReports()]);
-        const counts = emptyCounts();
-        for (const item of history) {
-          const type = (item.type ?? '').toUpperCase();
-          if (type in counts) counts[type] += 1;
+  // 통계는 부가 정보라 실패해도 화면을 막지 않고 0으로 둔다.
+  // 진단/신고 후 홈으로 "돌아올 때마다" 최신화해야 하므로 mount 1회가 아니라 포커스마다 갱신한다.
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        try {
+          const stats = await getGlobalStats();
+          setGlobalCounts({ ...emptyCounts(), ...stats.byType });
+          setGlobalTotal(stats.total);
+        } catch {
+          // 무시
         }
-        counts.PHONE = myReports.length; // 전화번호는 내가 신고한 건수
-        setMyCounts(counts);
-      } catch {
-        // 무시
-      }
 
-      try {
-        setBlockedCount((await getBlockedNumbers()).length);
-      } catch {
-        // 무시
-      }
-    })();
-  }, []);
+        try {
+          const [history, myReports] = await Promise.all([getAnalysisHistory(), getMyReports()]);
+          const counts = emptyCounts();
+          for (const item of history) {
+            const type = (item.type ?? '').toUpperCase();
+            if (type in counts) counts[type] += 1;
+          }
+          counts.PHONE = myReports.length; // 전화번호는 내가 신고한 건수
+          setMyCounts(counts);
+        } catch {
+          // 무시
+        }
+
+        try {
+          setBlockedCount((await getBlockedNumbers()).length);
+        } catch {
+          // 무시
+        }
+      })();
+    }, []),
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
