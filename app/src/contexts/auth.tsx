@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { setAuthToken, setUnauthorizedHandler } from '@/api/client';
 import { googleLoginApi, loginApi, registerApi, type LoginResult } from '@/api/auth';
 import { getMyInfoApi, withdrawApi } from '@/api/user';
+import { syncBlockedNumbers } from '@/lib/blocklistSync';
 import { signOutGoogle } from '@/native/googleAuth';
 import { useAlert } from '@/ui/AlertProvider';
 
@@ -46,6 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // 구버전 캐시엔 provider가 없어 탈퇴 시 오동작할 수 있음 → 서버에서 최신화(백그라운드).
           // 401이면 axios 인터셉터가 자동 로그아웃 처리하므로 여기선 조용히 무시.
           refreshMe();
+          // 이 계정의 차단 번호를 서버 백업에서 기기로 복원(pull-only). best-effort.
+          syncBlockedNumbers().catch(() => {});
         }
       } catch {
         // 무시
@@ -75,9 +78,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const u = { email: result.email, nickname: result.nickname, provider: result.provider };
     await SecureStore.setItemAsync(USER_KEY, JSON.stringify(u));
     setUser(u);
+    // 이 계정의 차단 번호를 서버 백업에서 기기로 복원(pull-only). best-effort.
+    syncBlockedNumbers().catch(() => {});
   };
 
-  // 로그아웃/탈퇴 공통: 로컬 세션 정리
+  // 로그아웃/탈퇴 공통: 로컬 세션 정리.
+  // 통화 차단 목록(기기 로컬)은 일부러 건드리지 않는다 — 기기 단위 보호라 로그아웃 후에도 유지돼야 함.
   const clearSession = async () => {
     setAuthToken(null);
     await SecureStore.deleteItemAsync(TOKEN_KEY);

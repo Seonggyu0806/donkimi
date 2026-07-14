@@ -83,6 +83,10 @@ export default function PhoneScreen() {
           return;
         }
       }
+      // 차단 번호는 계정 종속 — 계정(서버)이 원본이므로 서버에 먼저 확정한다.
+      // (서버 저장 없이 기기에만 넣으면, 다음 동기화 때 교체 로직이 그 번호를 지워버림)
+      await addBlockedNumberApi(number.trim());
+      // 기기 캐시에도 반영 (OS 통화 차단은 기기 로컬 목록을 읽음)
       await addBlockedNumber(number.trim());
       setBlocked(true);
       showAlert(
@@ -92,10 +96,13 @@ export default function PhoneScreen() {
         undefined,
         { variant: 'success' },
       );
-      // 계정에도 백업 (재설치/새 기기 복원용) — 실패해도 기기 차단 자체는 이미 완료된 상태
-      addBlockedNumberApi(number.trim()).catch(() => {});
     } catch {
-      showAlert('차단 실패', '번호 차단 중 문제가 발생했습니다.', undefined, { variant: 'danger' });
+      showAlert(
+        '차단 실패',
+        '번호를 차단하지 못했어요. 인터넷 연결을 확인하고 다시 시도해주세요.',
+        undefined,
+        { variant: 'danger' },
+      );
     } finally {
       setBlocking(false);
     }

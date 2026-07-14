@@ -1,4 +1,5 @@
 import { getAnalysisHistory, getGlobalStats } from '@/api/analysis';
+import { getBlockedNumbersApi } from '@/api/blocklist';
 import { getMyReports } from '@/api/number';
 import { useAuth } from '@/contexts/auth';
 import { getBlockedNumbers } from '@/native/callblock';
@@ -187,10 +188,17 @@ export default function HomeTab() {
           // 무시
         }
 
+        // "내 활동"은 계정 단위이므로 차단 번호도 서버(계정) 기준으로 센다.
+        // (기기 로컬은 차단 관리 화면에서 동기화하기 전엔 재설치 직후 비어 있어 0으로 잘못 표시됨)
         try {
-          setBlockedCount((await getBlockedNumbers()).length);
+          setBlockedCount((await getBlockedNumbersApi()).length);
         } catch {
-          // 무시
+          // 오프라인 등 서버 조회 실패 시 기기 로컬 목록으로 대체
+          try {
+            setBlockedCount((await getBlockedNumbers()).length);
+          } catch {
+            // 무시
+          }
         }
       })();
     }, []),
