@@ -22,7 +22,7 @@ public class ApiUsageLimiter {
 
     /**
      * 호출 1회를 기록하고, 오늘 횟수가 상한을 넘으면 예외를 던진다.
-     * 상한을 넘은 요청도 횟수에는 남는다 (외부 API는 부르지 않음).
+     * 상한을 넘으면 예외로 트랜잭션이 롤백돼 횟수는 상한에서 멈춘다 (외부 API도 부르지 않음).
      */
     @Transactional
     public void acquire(String apiName, int dailyLimit) {
