@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>개인정보처리방침 | 돈킴이</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+      line-height: 1.7;
+      color: #191f28;
+      background: #f9fafb;
+    }
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 20px 64px;
+      background: #fff;
+    }
+    h1 { font-size: 1.6rem; margin: 0 0 4px; }
+    h2 { font-size: 1.1rem; margin: 32px 0 8px; padding-top: 16px; border-top: 1px solid #e5e8eb; }
+    p, li { font-size: 0.95rem; }
+    .meta { color: #6b7684; font-size: 0.85rem; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { border: 1px solid #e5e8eb; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #f2f4f6; }
+    a { color: #3182f6; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>돈킴이 개인정보처리방침</h1>
+  <p class="meta">시행일: 2026년 11월 26일</p>
+
+  <p>
+    돈킴이(이하 "서비스")는 피싱 의심 링크·문자·음성·전화번호를 분석해 위험도를 알려주는 개인 개발 서비스입니다.
+    서비스는 이용자의 개인정보를 소중히 여기며, 아래와 같이 수집·이용·보관합니다.
+  </p>
+
+  <h2>1. 수집하는 개인정보</h2>
+  <table>
+    <tr><th>구분</th><th>항목</th></tr>
+    <tr><td>회원가입(이메일)</td><td>이메일, 닉네임, 비밀번호(암호화하여 저장)</td></tr>
+    <tr><td>구글 로그인</td><td>구글 계정 이메일, 이름, 구글 계정 식별값</td></tr>
+    <tr><td>서비스 이용 기록</td><td>분석 이력(분석한 URL, 이미지 파일 이름, 분석 결과), AI 챗봇 대화 내용, 전화번호 신고 기록, 통화 차단 번호 목록</td></tr>
+  </table>
+  <p>이미지·음성 파일 원본은 분석에만 사용하며 서버에 저장하지 않습니다.</p>
+
+  <h2>2. 이용 목적</h2>
+  <ul>
+    <li>회원 식별 및 로그인 유지</li>
+    <li>피싱 위험도 분석, 분석 이력 및 챗봇 대화 제공</li>
+    <li>피싱 의심 전화번호 신고 집계 및 통화 차단 목록 동기화(안드로이드 앱)</li>
+    <li>서비스 통계(분석 건수 등) 제공 및 오류 개선</li>
+  </ul>
+
+  <h2>3. 외부 서비스로의 전송(처리 위탁)</h2>
+  <p>분석을 위해 이용자가 입력한 내용 중 필요한 부분만 아래 외부 서비스로 전송합니다.</p>
+  <table>
+    <tr><th>받는 곳</th><th>전송 내용</th><th>목적</th></tr>
+    <tr><td>Google (Safe Browsing)</td><td>분석할 URL</td><td>악성 사이트 여부 확인</td></tr>
+    <tr><td>Google (Cloud Vision)</td><td>분석할 이미지</td><td>이미지 속 글자 인식(OCR)</td></tr>
+    <tr><td>NAVER Cloud (CLOVA Speech)</td><td>분석할 음성 파일</td><td>음성을 글자로 변환(STT)</td></tr>
+    <tr><td>OpenAI</td><td>추출된 글자, 챗봇 대화 내용</td><td>피싱 위험 분석 및 상담 답변 생성</td></tr>
+    <tr><td>Google (로그인)</td><td>구글 로그인 토큰</td><td>구글 계정 확인</td></tr>
+  </table>
+  <p>서비스 데이터는 Render(서버)와 TiDB Cloud(데이터베이스)에 보관됩니다.</p>
+
+  <h2>4. 보관 기간 및 파기</h2>
+  <ul>
+    <li>개인정보는 회원 탈퇴 시까지 보관합니다.</li>
+    <li>회원 탈퇴 시 계정 정보, 분석 이력, 챗봇 대화, 전화번호 신고 기록, 차단 번호 목록을 즉시 삭제합니다.</li>
+    <li>단, 전화번호별 신고 누적 횟수는 다른 이용자의 피싱 판단을 위해 남으며, 누가 신고했는지에 대한 기록은 삭제됩니다.</li>
+    <li>로그인하지 않고 이용한 분석은 계정과 연결되지 않으며, 서비스 통계 목적으로 남을 수 있습니다.</li>
+  </ul>
+
+  <h2>5. 이용자의 권리</h2>
+  <ul>
+    <li>앱·웹의 마이페이지에서 내 정보와 분석 이력을 확인할 수 있습니다.</li>
+    <li>마이페이지의 회원 탈퇴로 언제든지 개인정보 삭제를 요청할 수 있습니다.</li>
+    <li>안드로이드 앱의 통화 차단 기능은 기기 설정에서 언제든지 해제할 수 있습니다.</li>
+  </ul>
+
+  <h2>6. 문의</h2>
+  <p>
+    개인정보와 관련한 문의는 아래 GitHub 저장소의 Issues로 남겨 주세요.<br />
+    <a href="https://github.com/Seonggyu0806/donkimi/issues" target="_blank" rel="noopener noreferrer">github.com/Seonggyu0806/donkimi/issues</a>
+  </p>
+
+  <h2>7. 변경</h2>
+  <p>이 방침이 바뀌면 이 페이지에 시행일과 함께 공지합니다.</p>
+
+  <p class="meta"><a href="/">← 돈킴이로 돌아가기</a></p>
+</main>
+</body>
+</html>
