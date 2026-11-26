@@ -1,1 +1,11 @@
+// Gradle 플러그인(Spring Boot 등)을 받을 저장소.
+// Render 빌드 서버는 공용 IP라 Maven Central에서 429(Too Many Requests)로 막힐 때가 있어
+// Google의 Maven Central 미러를 먼저 보게 한다. (내용은 Maven Central과 동일)
+pluginManagement {
+	repositories {
+		maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
+		gradlePluginPortal()
+	}
+}
+
 rootProject.name = 'phishing'

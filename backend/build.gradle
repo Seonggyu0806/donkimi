@@ -21,6 +21,8 @@ configurations {
 }
 
 repositories {
+	// Maven Central 429 회피용 Google 미러를 먼저 사용 (settings.gradle 주석 참고), 없으면 Maven Central
+	maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
 	mavenCentral()
 }
 
