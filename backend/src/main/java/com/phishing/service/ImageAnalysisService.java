@@ -33,7 +33,12 @@ public class ImageAnalysisService {
         List<String> fileNames = new ArrayList<>();
         for (int i = 0; i < imageFiles.size(); i++) {
             MultipartFile file = imageFiles.get(i);
-            String text = ocrService.extractTextFromImage(file);
+            String text;
+            try {
+                text = ocrService.extractTextFromImage(file);
+            } catch (ApiUsageLimiter.DailyLimitExceededException e) {
+                return dailyLimitError();   // 오늘 OCR 상한 초과 → OpenAI도 부르지 않고 안내만
+            }
             if (text != null && !text.trim().isEmpty()) {
                 if (combinedText.length() > 0) combinedText.append("\n---\n");
                 combinedText.append("[이미지 ").append(i + 1).append("]\n").append(text);
@@ -78,10 +83,22 @@ public class ImageAnalysisService {
         return response;
     }
 
+    // 오늘 OCR 하루 상한을 다 쓴 경우의 응답 (컨트롤러가 success:false + message로 내려줌)
+    private Map<String, Object> dailyLimitError() {
+        Map<String, Object> error = new HashMap<>();
+        error.put("error", "오늘 이미지 분석 한도를 다 썼어요. 내일 다시 시도해 주세요.");
+        return error;
+    }
+
     public Map<String, Object> analyzeImage(MultipartFile imageFile, Long userId) {
         Map<String, Object> response = new HashMap<>();
 
-        String extractedText = ocrService.extractTextFromImage(imageFile);
+        String extractedText;
+        try {
+            extractedText = ocrService.extractTextFromImage(imageFile);
+        } catch (ApiUsageLimiter.DailyLimitExceededException e) {
+            return dailyLimitError();
+        }
 
         if (extractedText == null || extractedText.trim().isEmpty()) {
             response.put("error", "사진에서 글자를 찾을 수 없거나 구글 비전 API 오류가 발생했습니다.");

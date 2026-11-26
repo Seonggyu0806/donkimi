@@ -1,5 +1,6 @@
 package com.phishing.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,13 +16,23 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class OcrService {
 
     // ⭐ 방금 복사하신 구글 API 키를 여기에 넣어주세요!
     @Value("${google.vision.api.key}")
     private String GOOGLE_API_KEY;
 
+    // Vision은 유료 API라 하루 호출 상한을 둔다 (Render 환경변수 VISION_DAILY_LIMIT로 변경)
+    @Value("${google.vision.daily-limit}")
+    private int dailyLimit;
+
+    private final ApiUsageLimiter apiUsageLimiter;
+
     public String extractTextFromImage(MultipartFile file) {
+        // 0. 오늘 상한을 넘었으면 구글을 부르지 않고 예외 (아래 try에 잡히지 않도록 밖에서 검사)
+        apiUsageLimiter.acquire("VISION_OCR", dailyLimit);
+
         try {
             // 1. 이미지를 구글이 읽을 수 있는 Base64 암호문으로 변환
             String base64Image = Base64.getEncoder().encodeToString(file.getBytes());
