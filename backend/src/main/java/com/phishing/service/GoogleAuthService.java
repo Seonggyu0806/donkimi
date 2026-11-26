@@ -42,6 +42,13 @@ public class GoogleAuthService {
             throw new IllegalArgumentException("구글 토큰을 확인할 수 없습니다");
         }
 
+        return toUserInfo(response, webClientId);
+    }
+
+    /**
+     * tokeninfo 응답(클레임)을 검사해 사용자 정보로 바꾼다. 네트워크 없이 테스트할 수 있도록 분리.
+     */
+    static GoogleUserInfo toUserInfo(Map<?, ?> response, String webClientId) {
         String aud = (String) response.get("aud");
         if (webClientId != null && !webClientId.isBlank() && !webClientId.equals(aud)) {
             throw new IllegalArgumentException("이 앱에서 발급되지 않은 구글 토큰입니다");
@@ -53,6 +60,13 @@ public class GoogleAuthService {
 
         if (email == null || sub == null) {
             throw new IllegalArgumentException("구글 계정 정보를 확인할 수 없습니다");
+        }
+
+        // 같은 이메일의 기존 계정으로 로그인시키므로, 구글이 이메일 소유를 인증한 계정만 허용한다.
+        // (tokeninfo는 email_verified를 문자열 "true"로 주는 경우가 있어 둘 다 처리)
+        Object emailVerified = response.get("email_verified");
+        if (!Boolean.TRUE.equals(emailVerified) && !"true".equals(emailVerified)) {
+            throw new IllegalArgumentException("이메일 인증이 완료된 구글 계정만 사용할 수 있습니다");
         }
 
         return new GoogleUserInfo(email, (name != null && !name.isBlank()) ? name : email.split("@")[0], sub);

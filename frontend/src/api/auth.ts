@@ -1,6 +1,7 @@
 // 사용자 인증 API
 // userRegister  : 회원가입 (POST /api/v1/users)
 // userLogin     : 로그인, accessToken 반환 (POST /api/v1/users/login)
+// userGoogleLogin : 구글 ID 토큰으로 로그인 (신규면 자동 가입) (POST /api/v1/users/oauth/google)
 // userLogout    : 로그아웃 (POST /api/v1/users/logout)
 // getUserInfo   : 내 정보 조회 (GET /api/v1/users/me)
 // deleteUser    : 회원 탈퇴 (DELETE /api/v1/users/me)
@@ -27,6 +28,12 @@ export const userLogin = async (
 ): Promise<ApiResponse<UserLoginResult>> => {
   if (USE_MOCK) return mockUserLogin(email, password)
   const res = await apiClient.post<ApiResponse<UserLoginResult>>('/users/login', { email, password })
+  return res.data
+}
+
+export const userGoogleLogin = async (idToken: string): Promise<ApiResponse<UserLoginResult>> => {
+  if (USE_MOCK) throw new Error('목업 모드에서는 구글 로그인을 사용할 수 없습니다.')
+  const res = await apiClient.post<ApiResponse<UserLoginResult>>('/users/oauth/google', { idToken })
   return res.data
 }
 

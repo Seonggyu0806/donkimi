@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { GoogleLogin } from '@react-oauth/google'
 import { Loader2, Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import logoSvg from '@/assets/logo.png'
@@ -9,10 +10,19 @@ interface LocationState {
   from?: string
 }
 
+// 서버가 보낸 메시지(예: "이메일 또는 비밀번호가 틀렸습니다")를 우선, 없으면 기본 문구
+function toErrorMessage(err: unknown, fallback: string) {
+  const serverMessage = axios.isAxiosError<{ message?: string }>(err) ? err.response?.data?.message : undefined
+  return serverMessage ?? (err instanceof Error ? err.message : fallback)
+}
+
+// 웹 클라이언트 ID가 설정된 경우에만 구글 로그인 버튼을 보여준다
+const GOOGLE_LOGIN_ENABLED = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID)
+
 export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { login } = useAuth()
+  const { login, loginWithGoogle } = useAuth()
 
   const from = (location.state as LocationState)?.from ?? '/'
 
@@ -31,9 +41,25 @@ export default function LoginPage() {
       await login(email.trim(), password)
       navigate(from, { replace: true })
     } catch (err) {
-      // 서버가 보낸 메시지(예: "이메일 또는 비밀번호가 틀렸습니다")를 우선 표시
-      const serverMessage = axios.isAxiosError<{ message?: string }>(err) ? err.response?.data?.message : undefined
-      setError(serverMessage ?? (err instanceof Error ? err.message : '로그인에 실패했습니다.'))
+      setError(toErrorMessage(err, '로그인에 실패했습니다.'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 구글 로그인: 구글이 준 ID 토큰(credential)을 서버에 보내 로그인 (같은 이메일 계정이 있으면 그 계정으로)
+  const handleGoogleCredential = async (credential?: string) => {
+    if (!credential) {
+      setError('구글 로그인 정보를 받지 못했습니다.')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      await loginWithGoogle(credential)
+      navigate(from, { replace: true })
+    } catch (err) {
+      setError(toErrorMessage(err, '구글 로그인에 실패했습니다.'))
     } finally {
       setLoading(false)
     }
@@ -124,6 +150,17 @@ export default function LoginPage() {
           <span className="text-xs text-slate-400">또는</span>
           <div className="flex-1 h-px bg-slate-100" />
         </div>
+
+        {GOOGLE_LOGIN_ENABLED && (
+          <div className="flex justify-center mb-6">
+            <GoogleLogin
+              onSuccess={(res) => handleGoogleCredential(res.credential)}
+              onError={() => setError('구글 로그인 창을 열지 못했습니다. 잠시 후 다시 시도해 주세요.')}
+              text="signin_with"
+              shape="pill"
+            />
+          </div>
+        )}
 
         <div className="text-center">
           <p className="text-sm text-slate-400">

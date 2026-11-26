@@ -2,7 +2,7 @@
 // - AuthProvider  : user 상태를 관리하고 localStorage와 동기화
 // - useAuth       : 하위 컴포넌트에서 user, isLoggedIn, login, logout, register에 접근하는 훅
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-import { userLogin, userLogout, userRegister } from '@/api/auth'
+import { userLogin, userGoogleLogin, userLogout, userRegister } from '@/api/auth'
 
 interface User {
   email: string
@@ -14,6 +14,7 @@ interface AuthContextType {
   user: User | null
   isLoggedIn: boolean
   login: (email: string, password: string) => Promise<void>
+  loginWithGoogle: (idToken: string) => Promise<void>
   logout: () => Promise<void>
   register: (nickname: string, email: string, password: string) => Promise<void>
 }
@@ -53,6 +54,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
   }
 
+  // 구글 로그인: 구글이 준 ID 토큰을 서버에 보내 우리 서비스 토큰으로 교환 (같은 이메일 계정이 있으면 그 계정으로)
+  const loginWithGoogle = async (idToken: string) => {
+    const res = await userGoogleLogin(idToken)
+    if (!res.success || !res.data) {
+      throw new Error(res.message || '구글 로그인에 실패했습니다.')
+    }
+    setUser({
+      email: res.data.email,
+      nickname: res.data.nickname,
+      accessToken: res.data.accessToken,
+    })
+  }
+
   const logout = async () => {
     try {
       await userLogout()
@@ -70,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn: !!user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, isLoggedIn: !!user, login, loginWithGoogle, logout, register }}>
       {children}
     </AuthContext.Provider>
   )
