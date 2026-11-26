@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
 import { Loader2, Eye, EyeOff, User, Mail, Lock, Check } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
@@ -56,7 +57,9 @@ export default function RegisterPage() {
       await register(nickname.trim(), email.trim(), password)
       navigate('/login', { replace: true, state: { registered: true } })
     } catch (err) {
-      setError(err instanceof Error ? err.message : '회원가입에 실패했습니다.')
+      // 서버가 보낸 메시지(예: "이미 사용중인 이메일입니다")를 우선 표시
+      const serverMessage = axios.isAxiosError<{ message?: string }>(err) ? err.response?.data?.message : undefined
+      setError(serverMessage ?? (err instanceof Error ? err.message : '회원가입에 실패했습니다.'))
     } finally {
       setLoading(false)
     }

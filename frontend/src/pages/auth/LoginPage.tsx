@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import axios from 'axios'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Loader2, Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
@@ -30,7 +31,9 @@ export default function LoginPage() {
       await login(email.trim(), password)
       navigate(from, { replace: true })
     } catch (err) {
-      setError(err instanceof Error ? err.message : '로그인에 실패했습니다.')
+      // 서버가 보낸 메시지(예: "이메일 또는 비밀번호가 틀렸습니다")를 우선 표시
+      const serverMessage = axios.isAxiosError<{ message?: string }>(err) ? err.response?.data?.message : undefined
+      setError(serverMessage ?? (err instanceof Error ? err.message : '로그인에 실패했습니다.'))
     } finally {
       setLoading(false)
     }
