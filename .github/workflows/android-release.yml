@@ -1,0 +1,79 @@
+# ============================================================
+#  돈킴이 안드로이드 APK 자동 빌드 → GitHub Release 첨부
+#
+#  - 태그 푸시(v1.0.0 등): APK 빌드 후 해당 태그의 Release에 첨부
+#  - 수동 실행(Actions 탭 → Run workflow): APK만 빌드해서 Artifact로 보관 (Release 안 만듦)
+#
+#  서명: app/android/app/build.gradle 설정대로 레포의 debug.keystore로 서명한다.
+#        (구글 로그인 SHA-1 유지 목적. 플레이스토어 배포용 아님 → 직접 설치용 APK)
+# ============================================================
+name: Android Release APK
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write # Release 생성·파일 첨부에 필요
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle (cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install JS dependencies
+        working-directory: app
+        run: npm ci
+
+      # 실제 폰용 ARM만 빌드 (x86은 에뮬레이터 전용이라 제외 → 빌드 시간·APK 크기 절약)
+      - name: Build release APK
+        working-directory: app/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=armeabi-v7a,arm64-v8a
+
+      - name: Rename APK
+        run: cp app/android/app/build/outputs/apk/release/app-release.apk "donkimi-${GITHUB_REF_NAME}.apk"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: donkimi-apk
+          path: donkimi-${{ github.ref_name }}.apk
+          retention-days: 14
+
+      - name: Attach APK to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK="donkimi-${GITHUB_REF_NAME}.apk"
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$APK" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$APK" \
+              --title "돈킴이 ${GITHUB_REF_NAME}" \
+              --generate-notes
+          fi
